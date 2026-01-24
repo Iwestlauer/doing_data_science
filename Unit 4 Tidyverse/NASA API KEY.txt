@@ -1,0 +1,14 @@
+NASA API KEY
+VHBzzBGA3wec8atZYS6uJaIej2mOoHd8ujiWLxnY
+https://ssd-api.jpl.nasa.gov/doc/sbdb.html
+
+
+NASA/JPL Small-Body Database (SBDB) API
+Questions:
+1. orbit.first_obs gives the discovery date.How many objects have been discovered 
+since the 1950s, cumulatively?
+2. plot the normalized rms of all objects, what is the curve? are most objects
+really well fit (rms close to 0)?
+
+
+
