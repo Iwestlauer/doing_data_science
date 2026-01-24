@@ -1,0 +1,56 @@
+NASA API KEY
+VHBzzBGA3wec8atZYS6uJaIej2mOoHd8ujiWLxnY
+https://ssd-api.jpl.nasa.gov/doc/sbdb.html
+
+R Studio -- alt+shift+k brings up keyboard shortcut menu
+
+NASA/JPL Small-Body Database (SBDB) API
+
+GET https://ssd-api.jpl.nasa.gov/sbdb.api
+example
+https://ssd-api.jpl.nasa.gov/sbdb.api?des=73P&alt-des=1&cd-epoch=1
+https://ssd-api.jpl.nasa.gov/sbdb.api?des=2009%20FD&neo=1
+# HTTP 400 Bad Request
+# HTTP status code (200 = good)
+# How do I request the entire database? 
+# attempt 1: sstr=* ... 400 error
+
+resp <- request("https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Eros") |>
+  req_error(is_error = function(resp) FALSE) |>
+  req_perform()
+resp_status(resp)
+
+resp status: 200
+
+One, and only one, of the following query parameters is required: 
+sstr, spk, or des. All other parameters are optional.
+
+Some searches return 400, because there are so many results that it
+requires pagination. skipping for now
+
+https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=des,rms&limit=10
+
+
+
+Questions:
+1. orbit.first_obs gives the discovery date.How many objects have been discovered 
+since the 1950s, cumulatively?
+
+first_obs	 	date of the first (earliest) observation used in the fit 
+(YYYY-MM-DD where DD and/or MM may be ?? when the day and/or month is not known; 
+e.g., 1919-??-??)
+
+query:
+https://ssd-api.jpl.nasa.gov/sbdb.api?
+
+2. plot the normalized rms of all objects, what is the curve? are most objects
+really well fit (rms close to 0)?
+
+orbit.rms	is Normalized RMS of orbit fit
+It helps determine if a model accurately describes the observations, 
+with lower values indicating a better fit.
+
+A log-scale x-axis suddenly makes everything readable
+
+
+
