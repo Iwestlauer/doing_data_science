@@ -1,0 +1,104 @@
+---
+title: "Web_Scraping_XML"
+author: "Isabella Westlauer"
+date: "2026-01-24"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+library(xml2)
+library(dplyr)
+library(ggplot2)
+```
+
+## Ingest the XML Document
+```{r}
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml"
+doc <- read_xml(url)
+```
+
+## Extract the Nodes from the XML
+```{r}
+# view page source to find the names of the nodes
+names <- xml_text(xml_find_all(doc, "//name"))
+#so large it doesn't output to the console
+zipcodes <- xml_text(xml_find_all(doc, "//zipcode")) 
+#too large to output to console
+council_districts <- xml_text(xml_find_all(doc, "//councildistrict")) 
+```
+##Create a data frame
+```{r}
+restaurants = data.frame(names, zipcodes, council_districts)
+head(restaurants)
+```
+
+##Filter data to names including the word "sushi"
+```{r}
+# Are there any sushi restaurants in Baltimore? (all the data is in Baltimore)
+# NOTE the string to search is case-sensitive by default
+sushi_df <- restaurants %>%
+  filter(grepl("SUSHI", names), ignore.case = TRUE)
+length(sushi_df$names)
+sushi_df <- restaurants %>%
+  filter(grepl("sushi", names), ignore.case = TRUE)
+length(sushi_df$names)
+
+```
+##Find downtown sushi restaurants, nested filters  
+To identify sushi restaurants downtown, the dataset was filtered by council district and restaurant name. Council District 11 corresponds to the downtown area. The grepl() function was used with ignore.case = TRUE to identify restaurants whose names contain the word “sushi,” regardless of capitalization.
+```{r}
+downtown_restaurants <- filter(restaurants, council_districts == "11")
+sushi_downtown <- downtown_restaurants %>%
+  filter(grepl("sushi", names, ignore.case = TRUE))
+length(sushi_downtown$names)
+```
+##A better way to do it, combined conditions in one filter
+```{r}
+
+sushi_downtown <- restaurants %>%
+  filter(
+    council_districts == "11",
+    grepl("sushi", names, ignore.case = TRUE)
+  )
+# length(sushi_downtown$names)
+# Name(s) of downtown sushi restaurant(s)
+sushi_downtown$names
+```
+
+##Number of restaurants in each council district
+```{r}
+#count of names per council_district
+district_counts <- restaurants %>%
+  group_by(council_districts) %>%
+  summarise(restaurant_count = n())
+```
+
+
+Council district values were originally stored as character data, which caused alphabetical ordering on the x-axis. Converting the variable to numeric (or specifying factor levels) ensures districts are displayed in numerical order.
+
+```{r}
+
+district_counts <- district_counts %>%
+  mutate(council_districts = as.numeric(council_districts))
+
+ggplot(district_counts, aes(
+  x = council_districts, 
+  y = restaurant_count, 
+  label = restaurant_count)) +
+  geom_col(fill = "blue") +
+  geom_label(aes(label = restaurant_count),
+             nudge_x = 0.25, nudge_y = 0.25,
+             fill = "lightblue", color = "black") +
+
+
+  scale_x_continuous(breaks = 1:14) +
+  labs(
+    title = "Number of Restaurants by Council District",
+    x = "Council District",
+    y = "Number of Restaurants"
+  ) +
+  theme_minimal()
+```
+
+Now I wonder what district 1 is? district 11 is downtown so it will have a lot of restaurants, but why does district 1 have so many?

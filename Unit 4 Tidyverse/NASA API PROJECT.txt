@@ -51,6 +51,12 @@ It helps determine if a model accurately describes the observations,
 with lower values indicating a better fit.
 
 A log-scale x-axis suddenly makes everything readable
+# Use a log scale to compress the long tail
+ggplot(rms_df, aes(x = rms)) +
+  geom_histogram(fill = "blue", color = "black") +
+  scale_x_log10() +
+  labs(title = "Distribution of RMS values (log scale)", x = "RMS (log10)", y = "Count") +
+  theme_minimal()
 
 
 
