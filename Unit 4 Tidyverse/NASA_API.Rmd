@@ -112,6 +112,7 @@ head(df)
 ### The RMS of the orbit of a small body measures how well the computed orbit fits the observational data. Lower RMS values indicate a better orbit fit.
 
 ```{r}
+
 ggplot(df, aes(x = rms)) +
   geom_histogram(binwidth = 0.02, fill = "blue", color = "black") +
   labs(title = "Distribution of Orbit RMS values of Small Bodies",
@@ -129,6 +130,13 @@ rms_cutoff <- quantile(df$rms, 0.05, na.rm = TRUE)
 low_rms <- df %>%
   filter(rms <= rms_cutoff)
 summary(low_rms$last_obs)
+boxplot(
+  df$last_obs,
+  low_rms$last_obs,
+  names = c("All Objects", "Low RMS"),
+  main = "Last Observation Date Comparison",
+  ylab = "Last Observation Date"
+)
 ```
 ##A couple of these objects were last observed in 2021, the majority have been observed between 2024-2026.
 
