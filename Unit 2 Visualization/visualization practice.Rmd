@@ -1,0 +1,255 @@
+---
+title: "unit 2 practice"
+author: "Isabella Westlauer"
+date: "2026-01-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(ggthemes)
+```
+
+##Get a summary of the data
+```{r}
+library(readr)
+PlayersBBall <- read_csv("C:/Users/isabe/Desktop/MSDS6306/MSDS_6306_DDS/MSDS_6306_Doing-Data-Science/Unit 2/PlayersBBall.csv")
+View(PlayersBBall)
+summary(PlayersBBall)
+```
+##Distribution of players by position  
+```{r}
+
+ggplot(PlayersBBall, aes(x = position)) +
+  ggtitle("Distribution of players by position")+ 
+  geom_bar()
+
+```  
+
+##Distribution of weights of forwards and centers  
+###Forwards  
+```{r}
+PlayersBBall[PlayersBBall$position == "F",] %>% 
+  ggplot(aes(x= weight)) + 
+  ggtitle("Distribution of Weights of Forwards") +
+  xlab("Weight (lbs)") +
+  ylab("count")+
+  geom_histogram(fill = "blue", color = "black")
+
+forwards <- PlayersBBall[PlayersBBall$position == "F",]
+mean(forwards$weight, na.rm = TRUE)
+```
+
+###Centers  
+```{r}
+PlayersBBall[PlayersBBall$position == "C",] %>% 
+  ggplot(aes(x= weight)) + 
+  ggtitle("Distribution of Weights of Centers") +
+  xlab("Weight (lbs)") +
+  geom_histogram(fill = "green", color = "black")  
+
+centers <- PlayersBBall[PlayersBBall$position == "C",]
+mean(centers$weight, na.rm = TRUE)
+```
+
+##Distribution of player height, comparing forwards and centers  
+```{r}
+# uh-oh! height in the csv is not formatted as a float
+
+PlayersBBall <- PlayersBBall %>%
+  separate(height, into = c("feet", "inches"), sep = "-", convert = TRUE) %>%
+  mutate(height_float = feet + inches / 12)
+
+head(PlayersBBall[, c("feet", "inches", "height_float")]) # Quick inspection
+```
+###Height of forwards  
+```{r}
+PlayersBBall[PlayersBBall$position == "F",] %>%
+  ggplot(aes(x = height_float)) +
+  ggtitle("Distribution of Height (Feet) of Forwards")+
+  xlab("Height (feet)") +
+  geom_density(fill = "blue")
+
+forwards <- PlayersBBall[PlayersBBall$position == "F",]
+mean(forwards$height_float, na.rm = TRUE)
+```
+###Height of centers  
+```{r}
+PlayersBBall[PlayersBBall$position == "C",] %>%
+  ggplot(aes(x = height_float)) +
+  ggtitle("Distribution of Height (Feet) of Centers")+
+  xlab("Height (feet)") +
+  geom_density(fill = "green")
+
+centers <- PlayersBBall[PlayersBBall$position == "C",]
+mean(centers$height_float, na.rm = TRUE)
+```
+
+##Height comparison of Forwards and Centers
+```{r}
+
+ggplot() +
+  geom_density(
+    data = PlayersBBall[grepl("F", PlayersBBall$position), ],
+    aes(x = height_float),
+    fill = "blue",
+    alpha = 0.4
+  ) +
+  geom_density(
+    data = PlayersBBall[grepl("C", PlayersBBall$position), ],
+    aes(x = height_float),
+    fill = "green",
+    alpha = 0.4
+  ) +
+  labs(
+    title = "Height Distribution of Forwards vs Centers",
+    x = "Height (feet)",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+```
+
+
+##Density plot of the heights of players in all positions  
+```{r}
+density_plot_height = ggplot(PlayersBBall, aes(x = height_float, color = position)) +
+  ggtitle("Distribution of Height (Feet) of Players by Position") +
+  xlab("Height (feet)")+
+  geom_density(linewidth = 0.75)
+
+ggplotly(density_plot_height)
+```
+
+##Facet grid for height and weight by position
+```{r}
+#create a smaller dataframe with just height and weight and position
+player_size <- PlayersBBall %>%
+  select(position, height_float, weight)
+
+# Make the data longer so we can use height and weight as measures in a facet grid
+player_size_long <- player_size %>%
+  pivot_longer(
+    cols = c(height_float, weight),
+    names_to = "measure",
+    values_to = "value"
+  )
+
+# head(player_size_long)
+
+# This is bad because the x scale doesn't work for both height and weight
+# ggplot(data = player_size_long, aes(fill = position)) + 
+# geom_histogram(mapping = aes(x = value)) +
+# facet_grid(measure~position)
+
+# this doesn't look good because the x labels are wrong
+# ggplot(player_size_long, aes(x = value, fill = position)) + 
+#   geom_histogram() +
+#   facet_grid(measure ~ position, scales = "free_x") +
+#   scale_x_continuous(breaks = seq(0,500, by = 100)) +
+#   theme_minimal()
+
+#Switch the measure and position!
+ggplot(player_size_long, aes(x = value, fill = position)) + 
+  geom_histogram() +
+  facet_grid(position ~ measure, scales = "free_x") +
+  theme_minimal()
+
+```
+
+##Height vs weight, does the correlation change based on position?  
+
+The height and weight of the players have a positive correlation. 
+The relationship doesn't change much between different positions.
+```{r}
+ggplot(PlayersBBall,aes(x = height_float, y = weight, color = position)) + 
+  ggtitle("Height v Weight of Players by Position") + 
+  xlab("Height (feet)")+
+  ylab("Weight (lbs)")+
+  geom_point()
+```
+
+Use linear regression to see if the slopes don't match up.
+The slopes all look nearly the same.
+```{r}
+ggplot(PlayersBBall,aes(x = height_float, y = weight, color = position)) +
+  ggtitle("Height v Weight of Players by Position (using linear regression)") +
+  xlab("Height (feet)")+
+  ylab("Weight (lbs)")+
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+Use facet wrap to get a better look
+```{r}
+ggplot(data = PlayersBBall) + 
+ggtitle("Height v Weight of Players by Position (lm and facet wrap)") +
+xlab("Height (feet)")+
+ylab("Weight (lbs)")+
+geom_point(mapping = aes(x = height_float, y = weight, color = position)) +
+geom_smooth(mapping = aes(x = height_float, y = weight, linetype = position)) +
+facet_wrap(~position)
+
+```
+
+
+##Distribution of player height by start year  
+
+- Assuming I can use year_start for the year, because a player's height wouldn't change.
+- Using boxplots because I don't want outliers to affect the mean of the height  
+```{r}
+# This doesn't work because the x labels are all overlapping and look bad
+# ggplot(PlayersBBall, aes(x = factor(year_start), y = height_float)) +
+#   geom_boxplot() +
+#   labs(
+#     title = "Distribution of Player Heights by Start Year",
+#     x = "Start Year",
+#     y = "Height (feet)"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Add breaks to the x scale so labels show every 10 years in the range  
+```{r}
+# Here's the fix
+p <- ggplot(PlayersBBall, aes(x = year_start, y = height_float)) +
+  geom_boxplot(aes(group = year_start)) +
+  scale_x_continuous(breaks = seq(min(PlayersBBall$year_start),
+                                  max(PlayersBBall$year_start),
+                                  by = 10)) +
+  labs(
+    title = "Distribution of Player Heights by Start Year",
+    x = "Start Year",
+    y = "Height (feet)"
+  ) +
+  # theme_minimal()
+  # theme_stata()
+  theme_economist()
+  # theme_clean()
+  # theme_fivethirtyeight()
+  # theme_tufte()
+  # theme_solarized()
+  # theme_pander()
+  # theme_excel_new()
+  # theme_wsj()
+
+ggplotly(p)
+```
+
+##Use plotly library to show height vs weight vs start year with color indicating position  
+```{r}
+library(plotly)
+p <- plot_ly(PlayersBBall, 
+             x = ~height_float, y = ~weight, z = ~year_start, 
+             color = ~position) %>%
+   add_markers() %>%
+   layout(scene = list(title = "Player Height vs Weight vs Start Year",
+                       xaxis = list(title = 'Height (feet)'),
+                      yaxis = list(title = 'Weight (lbs)'),
+                      zaxis = list(title = 'Start Year')))
+ggplotly(p)
+```
