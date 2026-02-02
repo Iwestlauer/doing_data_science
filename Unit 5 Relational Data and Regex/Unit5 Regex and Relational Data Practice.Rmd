@@ -1,0 +1,277 @@
+---
+title: "unit5 practice"
+author: "Isabella Westlauer"
+date: "2026-02-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Wrangle 3: Relational Data and Regular Expressions # 
+We previously used a dataset called PlayerBBall.csv which contained information about NBA basketball players.  To finish that assignment, you had to manipulate the height column. 
+
+Review the code you used to do that and see if you can’t make more efficient code using regular expressions and / or the string functions from this Unit. 
+
+Use regular expressions to use the height column to create a TotalInches column that has the total height in inches and is recorded as a numeric variable. 
+
+Use this variable to make a chart that contains histograms of heights for every position (color coded).  
+
+## Get the PlayersBBall Data and inspect it  
+```{r}
+library(readr)
+library(tidyverse)
+PlayersBBall <- read_csv("C:/Users/isabe/Desktop/MSDS6306/MSDS_6306_DDS/MSDS_6306_Doing-Data-Science/Unit 2/PlayersBBall.csv")
+View(PlayersBBall)
+summary(PlayersBBall)
+head(PlayersBBall)
+```
+
+## Use regex to convert height into a new column "height_inches"  
+The new column is a numeric column that relates to the total height of the player in inches.  
+```{r}
+PlayersBBall <- PlayersBBall %>%
+  separate(height, into = c("feet", "inches"), sep = "-", convert = TRUE) %>%
+  mutate(height_inches = feet*12 + inches)
+head(PlayersBBall[, c("feet", "inches", "height_inches")]) # Quick inspection
+head(PlayersBBall$height_inches)
+```
+
+## Histogram of Height by Position  
+```{r}
+ggplot(PlayersBBall, aes(x = height_inches, color = position)) +
+  ggtitle("Histogram of Height (inches) by position") +
+  geom_histogram(fill = "white")
+```
+
+## FIFA Dataset  
+Use the string functions and regular expressions to assess a relationship between height and weight among soccer players.  To do this you will need to manipulate the height and weight columns into columns that have numeric values of the height and weight.  
+
+```{r}
+fifa = read.csv("C:/Users/isabe/Desktop/MSDS6306/MSDS_6306_DDS/doing_data_science/Unit 3 Data Transformation and EDA/FIFA Players.csv", header = TRUE)
+head(fifa, 5)
+
+fifa_htwt = fifa %>%
+  select("Height", "Weight", "Position")
+head(fifa_htwt)
+```
+
+Change Height and Weight from text to numbers.  
+First, replace the substring "lbs" with "" to remove it.  
+Convert the values to numeric datatype, assuming weight is only in whole numbers.  
+
+```{r}
+library(stringr)
+fifa_htwt$Weight_Num <- str_replace(fifa_htwt$Weight, "lbs", "")
+head(fifa_htwt$Weight_Num)
+
+# change weight_num from a chr to a dbl
+fifa_htwt$Weight_Num <- as.numeric(fifa_htwt$Weight_Num)
+head(fifa_htwt)
+```
+
+Change height to a number using regex.  
+Separate the feet and inches and calculate the height in inches.  
+
+```{r}
+
+
+#change height to a number
+fifa_htwt <- fifa_htwt %>%
+  separate(Height, into = c("feet", "inches"), sep = "'", convert = TRUE) %>%
+  mutate(height_inches = feet*12 + inches)
+head(fifa_htwt)
+
+# Plot the height vs weight of players to find any correlation
+ggplot(fifa_htwt, aes(x = Weight_Num, y = height_inches)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  ggtitle("Height vs Weight of FIFA Players") + 
+  xlab("Weight (lbs)") + ylab("Height (inches)")
+
+# Look at the linear regression of height vs weight for LM vs LB positions
+fifa_htwt %>%
+  filter(Position == "LM" | Position == "LB") %>%
+  ggplot(aes(x = Weight_Num, y = height_inches, color = Position)) +
+  geom_jitter(width = 1, height = 0) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Height vs Weight of FIFA Players by Position",
+    x = "Weight (lbs)",
+    y = "Height (inches)"
+  )
+```
+
+## Data Munging  
+
+Get the baby name data for 2016.  
+The .txt file can be read using readr::read_delim()  
+The text files have different delimiters, and no headers.  
+
+```{r}
+# Get the baby names
+library(readr)
+data_2016 <- read_delim("C:/Users/isabe/Desktop/MSDS6306/MSDS_6306_DDS/MSDS_6306_Doing-Data-Science/Unit 5/yob2016.txt", 
+                        delim = ";", col_names = FALSE)
+spec(data_2016)
+head(data_2016)
+```
+
+Read the data into a data frame. 
+Change the column names to be more descriptive.  
+
+```{r}
+df_baby <- data.frame(data_2016)
+
+# give it human readable column names
+df_baby <- rename(df_baby, Name = X1, Gender = X2, Count = X3)
+summary(df_baby)
+head(df_baby)
+```
+
+Find names with three y's at the end.  
+Remove the misspelled name.  
+
+```{r}
+# Find names with three y's at the end
+str(df_baby)
+str_view_all(df_baby$Name,"yyy$") # can't see results- returns the whole column
+
+df_baby %>%
+  filter(str_detect(df_baby$Name,"yyy$"))
+
+#Check to make sure the data to keep is there, too
+df_baby %>%
+  filter(str_detect(Name, "Fiona"))
+
+y2016 <- df_baby %>%
+  filter(!str_detect(df_baby$Name,"yyy$"))
+
+#check to make sure it's removed
+y2016 %>%
+  filter(str_detect(Name,"yyy$"))
+
+summary(y2016)
+```
+
+## Data Merging  
+
+Get the last ten rows of 2015 baby names.  
+Put the data in a dataframe and give it human readable column names.  
+
+```{r}
+library(readr)
+data_2015 <- read_delim("C:/Users/isabe/Desktop/MSDS6306/MSDS_6306_DDS/MSDS_6306_Doing-Data-Science/Unit 5/yob2015.txt", 
+                        delim = ",", col_names = FALSE)
+spec(data_2015)
+df_baby_2015 <- data.frame(data_2015)
+df_baby_2015 <- rename(df_baby_2015, Name = X1, Gender = X2, Count = X3)
+tail(df_baby_2015, 10)
+```
+
+Merge y2016 and y2015 by your Name column; assign it to final.  The client only cares about names that have data for both 2016 and 2015; there should be no NA values in either of your amount of children rows after merging.
+
+```{r}
+library(dplyr)
+library(plotly)
+# filter out N/A
+final <- merge(na.omit(y2016), na.omit(df_baby_2015), by = "Name", relationship = "many-to-many")
+
+# no name should be on the list more than once... let's check, how?
+# print(table(final$Name)) # too much console output
+# as.data.frame(table(final$Name)) %>% plot() # all at 1.0, 2.0, and 4.0 why?
+# hist(as.factor(final$Name)) # This doesn't work because I changed Name to str
+
+final %>% filter(Name == "Emma") %>% head()
+head(final)
+summary(final) # Would summary tell me if there is any NA? nope
+
+final <- merge(na.omit(y2016), na.omit(df_baby_2015), by = c("Name", "Gender"))
+final %>% filter(Name == "Emma") %>% head()
+head(final)
+```
+
+## Data Summary
+Create a new column called “Total” in final that adds the amount of children in 2015 and 2016 together.  In those two years combined, how many people were given popular names?
+Sort the data by Total.  What are the top 10 most popular names?
+The client is expecting a girl!  Omit boys and give the top 10 most popular girl’s names.
+Write these top 10 girl names and their Totals to a CSV file.  Leave out the other columns entirely.
+
+```{r}
+# combine counts from 2015 and 2016
+final$Total = final$Count.x + final$Count.y
+head(final)
+tail(final)
+summary(final$Total)
+
+# What are the top 5% of most popular baby names?
+cutoff_95 <- quantile(final$Total, 0.95)
+cutoff_99 <- quantile(final$Total, 0.99)
+
+top_5_percent <- final %>%
+  filter(Total >= cutoff_95)
+summary(top_5_percent)
+
+top_1_percent <- final %>%
+  filter(Total >= cutoff_99)
+summary(top_1_percent)
+```
+
+
+## Plot the Popular Baby Names  
+
+```{r}
+popular_names <-
+final %>%
+  arrange(desc(Total)) %>%
+  slice_head(n = 10)
+
+
+ggplot(popular_names, aes(x = reorder(Name, Total), y = Total, label = Total)) +
+  geom_col(aes(fill = Gender)) +
+  geom_label(aes(label = Total),
+             nudge_x = 0.25, nudge_y = 0.25,
+             color = "black") +
+  coord_flip() +
+  labs(
+    title = "Top 20 Most Popular Baby Names 2015-2016",
+    x = "Baby Name",
+    y = "Total Count"
+  ) +
+  theme_minimal()
+
+```
+
+## Most Popular Girl's Names  
+
+```{r}
+# filter to girls names only
+popular_girls <-
+final %>%
+  filter(Gender == "F") %>%
+  select(Name, Total) %>%
+  arrange(desc(Total)) %>%
+  head(10)
+
+# plot the 10 most popular girl's names
+top_1_percent %>% 
+  filter(Gender == "F") %>%
+  arrange(desc(Total)) %>%
+  slice_head(n = 10) %>%  
+ggplot(aes(x = reorder(Name, Total), y = Total, label = Total)) +
+  geom_col(fill = "pink") +
+  geom_label(aes(label = Total),
+             nudge_x = 0.25, nudge_y = 0.25,
+             fill = "lightblue", color = "black") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Most Popular Girl's Names 2015-2016",
+    x = "Name",
+    y = "Total Count"
+  ) +
+  theme_minimal()
+
+# Write the result to a csv file
+write.csv(popular_girls, file = "Top Ten Girls Names 2015-2016.csv", row.names = FALSE)
+```
