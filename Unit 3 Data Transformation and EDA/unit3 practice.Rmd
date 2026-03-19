@@ -1,0 +1,251 @@
+---
+title: "Unit 3 Practice"
+author: "Isabella Westlauer"
+date: "2026-01-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Get the FIFA Data
+
+Using the FIFA player data set, filter the data set to create a dataframe that has just the Left Midfielders (LM) and Left Forwards (LF).  
+
+
+```{r}
+library(GGally) # What is this library for?
+fifa = read.csv("FIFA Players.csv", header = TRUE)
+head(fifa)
+
+library(tidyverse) #needed for select and filter
+# select and filter in one move
+fifa_lmlf <- fifa %>% select(Acceleration, Agility, Position)%>%
+filter(Position == "LM" | Position == "LF")%>%
+  arrange(Agility)
+
+# head(fifa_lmlf)
+# summary(fifa_lmlf)
+fifa_lmlf %>% count(Position)
+fifa_lmlf %>% group_by(Position) %>% summarize(mean_agility = mean(Agility), count = n())
+fifa_lmlf %>% group_by(Position) %>% summarize(sd_agility = sd(Agility), count = n())
+
+n_LM <- 1095
+n_LF <- 15
+s_LM <- 9.262842
+s_LF <- 8.310636
+xbar_LM <- 75.37808
+xbar_LF <- 79.73333
+sigma_pooled = sqrt(((n_LM-1)*s_LM*s_LM + (n_LF-1)*s_LF*s_LF)/(n_LM+n_LF -2))
+sigma_pooled # 9.251422
+
+tstat = (xbar_LM - xbar_LF)/(sigma_pooled*sqrt((1/n_LM)+(1/n_LF)))
+tstat # -1.810906
+# What does a negative tstat mean? LM probably has a lower mean agility than LF?
+
+# df is degrees of freedom, should be close to the size of the smaller sample size minus 1
+# df = 15 -1 = 14
+p_value <- 2 * pt(-abs(1.810906), df = 14)
+p_value
+
+```
+
+```{r}
+fifa_lmlf %>% ggpairs(aes(color = Position))
+```
+
+## 
+```{r}
+#Histogram of agility scores for each group.
+# fifa_lmlf %>%
+#   filter(Position == "LM") %>%
+#   ggplot(aes(x = Agility)) +
+#   geom_histogram(bins = 30) +
+#   labs(
+#     title = "Histogram of LM Agility Ratings",
+#     x = "Agility",
+#     y = "Count"
+#   )
+
+fifa_lmlf %>%
+  ggplot(aes(x = Agility)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black") +
+  facet_wrap(~ Position, nrow = 1) +
+  labs(
+    title = "Agility Distributions by Position",
+    x = "Agility Rating",
+    y = "Count"
+  )
+
+
+fifa_lmlf %>%
+  filter(Position %in% c( "LM", "LF")) %>%
+  ggplot(aes(x = Agility, fill = Position)) +
+  geom_histogram(bins = 30, alpha = 0.5, position = "identity") +
+  labs(
+    title = "Agility Distributions by Position",
+    x = "Agility Rating",
+    y = "Count"
+  )
+
+
+```
+
+## Exploratory Data Analysis  
+
+```{r}
+# heart.csv dataset from:
+# https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset?resource=download
+
+heart_data = read_csv("heart.csv")
+heart_df = data.frame(heart_data)
+summary(heart_df)
+str(heart_data)
+# facet grid to find what pattern to look into?
+colSums(is.na(heart_df)) # no nulls
+max(heart_df$thal) #ranges from 0 to 3
+# map thal to factor levels
+# thal is a categorical variable
+# heart_df$thal <- factor(
+#   heart_df$thal,
+#   levels = c(0, 1, 2, 3),
+#   labels = c("Unknown", "Normal", "Fixed Defect", "Reversible Defect")
+# )
+# 
+# # target is a categorical, 0-no heart disease, 1- heart disease
+# heart_df$target <- factor(
+#   heart_df$target,
+#   levels = c(0, 1),
+#   labels = c("No Heart Disease", "Heart Disease")
+# )
+# 
+# heart_df$sex <- factor(
+#   heart_df$sex,
+#   levels = c(0,1),
+#   labels = c("Female", "Male")
+# )
+
+
+
+# categorical variables
+barplot(table(heart_data$sex), main = "Sex", names.arg = c("Female", "Male"))
+barplot(table(heart_data$cp), main = "Chest Pain Type")
+barplot(table(heart_data$fbs), main = "Fasting Blood Sugar")
+barplot(table(heart_data$exang), main = "Exercise Induced Angina")
+
+# what question to ask? age and sex vs presence of heart disease
+# heart disease (target = 1) based on presence of EIA, vs different type of chest pain
+
+# What is oldpeak? oldpeak = ST depression induced by exercise relative to rest
+# ST depression indicates lack of blood flow to the heart, may be caused by heart disease (CAD)
+# What do the values of oldpeak mean? 
+# millimeters of depression of the ST part of the rhythm, on the EKG graph
+# 2 is clearly ischemic heart disease
+head(heart_df$oldpeak)
+min(heart_df$oldpeak)
+max(heart_df$oldpeak) #ranges from 0 to 6.2
+max(heart_df$age) # ranges from 29 to 77
+
+#cp is type of chest pain
+# Typical Angina: 0
+# atypical angina: 1
+# non-anginal pain: 2
+# asymptomatic: 3
+
+
+heart_df$oldpeak_cat <- cut(
+  heart_df$oldpeak,
+  # I don't want to pick random breaks, I want them to be quartiles
+  breaks = c(-Inf, 0, 1.5, Inf),
+  labels = c("zero", "normal", "high"),
+  right = TRUE
+)
+
+table(heart_df$oldpeak_cat)
+
+heart_df %>%
+  mutate(sex = factor(sex, levels = c(0, 1), labels = c("Female", "Male"))) %>%
+  select(age, sex, oldpeak_cat, cp, target) %>%
+  ggpairs(aes(color = sex))
+
+```
+```{r}
+
+
+# oldpeak cat dodged bar to see relationship oldpeak cat vs diagnosis of heart disease, regardless of sex??
+
+heart_df$sex <- factor(heart_df$sex, levels = c(0, 1), labels = c("Female", "Male"))
+heart_df$target <- factor(heart_df$target, levels = c(0, 1), labels = c("No Disease", "Heart Disease"))
+
+str(heart_df$sex)
+table(heart_df$sex, useNA = "ifany")
+
+str(heart_df$target)
+table(heart_df$target, useNA = "ifany")
+levels(heart_df$target)
+
+
+# mpg %>%
+# ggplot(aes(x = hwy, y = cty, color = as.factor(cyl))) +
+# geom_point()
+
+heart_df %>%
+ggplot(aes(x = oldpeak_cat, color = target)) +
+  geom_bar(position = "dodge") +
+  # scale_fill_manual(values = c("No Disease" = "grey80",
+  #                              "Heart Disease" = "red")) +
+  labs(
+    title = "Oldpeak Category vs Heart Disease Diagnosis",
+    x = "ST Depression Category (oldpeak)",
+    y = "Count",
+    fill = "Diagnosis"
+  )
+
+# ggplot(heart_df, aes(x = oldpeak, y = as.factor(target))) +
+#   geom_jitter(height = 0.1, alpha = 0.3) +
+#   scale_y_discrete(labels = c("0" = "No Disease", "1" = "Heart Disease")) +
+#   labs(
+#     title = "Oldpeak vs Heart Disease Diagnosis",
+#     x = "Oldpeak (ST Depression)",
+#     y = "Diagnosis"
+#   )
+
+# ggplot(heart_df, aes(x = oldpeak, fill = sex)) +
+#   facet_wrap(~ target) +
+#   geom_histogram(position = "dodge", bins = 30, color = "black") +
+#   
+#   scale_fill_manual(values = c("Female" = "pink", "Male" = "blue")) +
+#   labs(title = "Oldpeak Distribution by Heart Disease Status and Sex",
+#        x = "Oldpeak",
+#        y = "Count")
+
+```
+
+```{r}
+
+# histogram of age for target 0 vs 1 color coded by sex
+ggplot(heart_df, aes(x = age, fill = sex)) +
+  geom_histogram(position = "dodge", bins = 30, color = "black") +
+  facet_wrap(~ target) +
+  scale_fill_manual(values = c("Female" = "pink", "Male" = "blue")) +
+  labs(title = "Age Distribution by Heart Disease Status and Sex",
+       x = "Age",
+       y = "Count")
+
+```
+
+
+```{r}
+
+# target vs age, explaining how I interpret a box plot and maybe explore the outliers?
+ggplot(heart_df, aes(x = factor(target), y = age)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Target vs Age",
+       x = "Heart Disease",
+       y = "Age")
+
+
+```
+
+

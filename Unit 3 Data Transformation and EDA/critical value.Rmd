@@ -1,0 +1,90 @@
+
+---
+title: "Welch's t-test Mean Agility of Left Forwards vs Left Midfielders"
+author: "Isabella Westlauer"
+date: "1/31/2026"
+output: html_document
+---
+```{r}
+# Load the ggplot2 library
+library(ggplot2)
+
+# 1. Define parameters and calculate critical values
+mu <- 0
+sigma <- 1
+alpha <- 0.05
+df <- 14   # placeholder df for Welch t-test illustration
+
+t_critical_left  <- qt(alpha / 2, df = df)
+t_critical_right <- qt(1 - alpha / 2, df = df)
+
+# z_critical_left <- qnorm(alpha / 2, mean = mu, sd = sigma)
+# z_critical_right <- qnorm(1 - alpha / 2, mean = mu, sd = sigma)
+
+# 2. Create a data frame for plotting (ggplot requires a data frame)
+plot_data <- data.frame(x = seq(-4, 4, length.out = 1000))
+
+# 3. Create the base plot with the normal curve
+p <- ggplot(plot_data, aes(x = x)) +
+  stat_function(
+    fun = dt,
+    args = list(df = df),
+    linewidth = 1
+  ) +
+  labs(
+    title = "Sampling Distribution of X̄_LM − X̄_LF (α = 0.05)",
+    x = expression(bar(X)[LM] - bar(X)[LF]),
+    y = "Density"
+  ) +
+  theme_minimal()
+
+# 4. Add shaded critical regions, left and right, using 'geom_area'
+p <- p +
+  geom_area(
+    data = subset(plot_data, x < t_critical_left),
+    aes(y = dt(x, df)),
+    fill = "red",
+    alpha = 0.4
+  ) +
+  geom_area(
+    data = subset(plot_data, x > t_critical_right),
+    aes(y = dt(x, df)),
+    fill = "red",
+    alpha = 0.4
+  )
+
+# 5. Add vertical lines for the critical values
+p <- p +
+  geom_vline(
+    xintercept = c(t_critical_left, t_critical_right),
+    linetype = "dashed"
+  ) +
+  annotate(
+    "text",
+    x = c(t_critical_left, t_critical_right),
+    y = 0.02,
+    label = c(expression(-t^"*"), expression(t^"*")),
+    hjust = c(1.2, -0.2)
+  )
+
+t_obs <- 1.810906
+
+p <- p +
+  geom_vline(
+    xintercept = t_obs,
+    color = "blue",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = t_obs,
+    y = 0.35,
+    label = expression(t[obs]),
+    hjust = -0.1,
+    color = "blue"
+  )
+
+
+# Print the plot
+print(p)
+```
