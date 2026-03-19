@@ -1,0 +1,29 @@
+unit 10 questions/notes
+
+what if the slope is really really small, and it's actually
+the response is based on the squared term in a quadratic fit?
+
+we should start with testing the linear, then ...
+
+type 1 error - reject when the null is actually true, 
+because you just got  a bad sample??
+
+how to compare models?
+what does good fit mean? can I fit it without the outliers...
+should we investigate the outliers... do NOT delete them
+the squared values are more sensitiv to outliers
+rmse and mae may give you different answers...
+
+compare linear vs quadratic fit by mspe? or rmse?
+mae: mean absolute error, just take abs() instead of squaring
+mspe: mean square prediction error
+rmse: root mean square error
+
+why plot residuals vs fitted values?                
+
+
+what is the 95% confidence interval??
+
+95% confidence interval: I"m 95% confident that the answer is
+within this interval.
+run the predict() command to get the conf int
