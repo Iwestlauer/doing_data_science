@@ -1,0 +1,150 @@
+---
+title: "iris_multinomial"
+author: "Isabella Westlauer"
+date: "2026-02-06"
+output: html_document
+---
+
+For the full (multinomial) IRIS data (the iris dataset in R), 
+do a 70-30 train/test cross validation with 
+k =1 - 90 and use sepal length and width as predictors.  
+Make a plot of k (xaxis) versus accuracy.  
+Use this plot to tune the hyperparameter k.  
+What do you feel is the best value of k?  
+```{r}
+library(tidyverse)
+library(plotly)
+library(class)
+library(caret)
+library(e1071)
+library(ggthemes)
+```
+
+## Partition the Data
+
+```{r}
+set.seed(10) # for reproducibility
+split_percent = 0.7
+num_observations <- dim(iris)[1]
+training_indices = sample(1:num_observations,round(split_percent * num_observations))
+iris_training = iris[training_indices,]
+iris_test = iris[-training_indices,]
+
+```
+
+## Plot just for fun
+
+Sepal length and width are the explanatory variables, or predictors.
+```{r}
+iris %>% ggplot(aes(x = Sepal.Length,Sepal.Width,color = Species)) + 
+  geom_point() +
+  ggtitle("Iris sepal length and width according to species")
+# Question-- if we think about a test with sepal.width >4.5, or sepal.length>8,
+# Then we're extrapolating? We should not use knn classification? That test point
+# would be an outlier and it would be strange to classify it based on the nearest
+# neighbors which are far out.
+```
+
+Make a plot of k versus accuracy
+```{r}
+accuracies = data.frame(accuracy = numeric(90), 
+                        k = numeric(90))
+
+for(i in 1:90)
+{
+  classifications = knn(iris_training[,c(1,2)],
+                        iris_test[,c(1,2)],
+                        iris_training$Species, 
+                        prob = TRUE, k = i)
+  CM = confusionMatrix(table(iris_test$Species,
+                             classifications))
+  accuracies$accuracy[i] = CM$overall[1]
+  accuracies$k[i] = i
+}
+
+p<- ggplot(accuracies, aes(k, accuracy)) + 
+  geom_line() +
+  ggtitle("Accuracy versus k value")
+
+ggplotly(p + theme_economist())
+```
+
+```{r}
+iterations = 500
+numks = 90
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+  
+for(j in 1:iterations)
+{
+accuracies = data.frame(accuracy = numeric(numks), 
+                        k = numeric(numks))
+training_indices = sample(1:dim(iris)[1],
+                          0.7*dim(iris)[1])
+iris_training = iris[training_indices,]
+iris_test = iris[-training_indices,]
+for(i in 1:numks)
+{
+  classifications = knn(iris_training[,c(1,2)],
+                        iris_test[,c(1,2)],
+                        iris_training$Species, 
+                        prob = TRUE, k = i)
+  table(classifications,iris_test$Species)
+  CM = confusionMatrix(table(classifications,
+                             iris_test$Species))
+  masterAcc[j,i] = CM$overall[1]
+}
+}
+# mean accuracy versus different k values
+MeanAcc = colMeans(masterAcc) 
+mean(MeanAcc)
+```
+```{r}
+p <- plot(seq(1,numks,1),
+          MeanAcc, 
+          type = "l",
+          xlab = "k",
+          ylab = "Mean Accuracy",
+          main = "Master Accuracy of k 1 to 90") # how do I use plotly to get interactive?
+
+
+max_mean_acc <- max(MeanAcc)
+best_k <- which(MeanAcc == max_mean_acc)
+
+points(best_k, MeanAcc[best_k],
+       pch = 19,
+       col = "red")
+
+abline(h = max_mean_acc,
+       col = "red",
+       lty = 2,
+       lwd = 2)
+
+abline(v = best_k,
+       col = "red",
+       lty = 2,
+       lwd = 2)
+par(xpd = TRUE)
+text(best_k, max_mean_acc,
+     labels = paste("k =", best_k),
+     pos = 3,
+     offset = 1,
+     col = "red")
+par(xpd = FALSE)
+
+
+
+
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```

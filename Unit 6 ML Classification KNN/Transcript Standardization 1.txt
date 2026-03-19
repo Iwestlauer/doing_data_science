@@ -1,0 +1,420 @@
+Standardization 1
+
+Hi. 
+Let's talk real quick about why it's important to standardize your variables before you use them in kNN. 
+So we'll use a little example here. 
+So we're going to start over in this area right here, 
+I'll start with a coordinate plane.
+
+And we'll just have, 
+say, 
+1, 
+2, 
+3, 
+4, 
+and 5. 
+So 1, 
+2, 
+3, 
+4, 
+and 5. 
+Are going to start off really simple, 
+make a really simple example. 
+So that's 1, 
+2, 
+3, 
+4, 
+and 5.
+
+You're going to be astounded how simple this part of the example is. 
+So let's say that we had a labeled value, 
+and let's say that that labeled value is here at 1, 
+1. 
+And let's say we had another--
+
+let's say that that labeled value was defaults. 
+So I'm going to call that D for Default. 
+And then let's say we had another labeled value--
+
+I'm not telling you what these axes are, 
+just a very simple example--
+
+let's say we had another labeled value over here at 5, 
+5. 
+So let's say we have that guy right there, 
+but let's say that they did not default. 
+So D for Default and ND for Not Default. 
+So basically what we want to do is say, 
+hey, 
+let's say that I've got a another value right here, 
+but I don't know if it is a default or no default.
+
+In kNN, 
+what we're going to see is--
+
+or what we've seen is that whichever one of these is closest to it--
+
+if--
+
+it's a very simple data set, 
+but that's the one that's going to get labeled as just based on these axes, 
+whichever one's closer. 
+But we see that this one is 1, 
+2, 
+3, 
+4. 
+This one--
+
+so that's four-way, 
+because they're on the same line, 
+and this one is at 1, 
+but this one's at 5, 
+so that's at 1, 
+2, 
+3, 
+4. 
+So from here to here is 4, 
+and from here to here is 4, 
+so I will double question mark that--
+
+what do I do with that? And in kNN, 
+a lot of times they just flip a coin, 
+and if there's more than one at a time, 
+just keep flipping coins. 
+But the whole point of this is is what happens if--
+
+this is what we would call the same scale. 
+These are standardized. 
+The y-axis is on the scale, 
+the same scale, 
+and the x-axis is on the same scale. 
+So let me go over here and try to recreate that quickly.
+
+1, 
+2 3, 
+4, 
+and 5. 
+And this time we're going to call this 1, 
+2, 
+3, 
+4, 
+and 5--
+
+I'm going to put my little guy right there, 
+1, 
+2, 
+3, 
+4, 
+5. 
+I'm going to put my little guy right there. 
+And then I've got my value. 
+this is a default value, 
+this is no default value--
+
+no default value. 
+And now I've got this guy right here. 
+Great. 
+So what are we going to do?
+
+I haven't put this scale in here yet, 
+because this was standardized. 
+These are on the same scale. 
+Remember that we use Euclidean distance a lot of times in kNN, 
+that's what I'm assuming that we're using here. 
+So let's say that this is on a different scale.
+
+Let's say this is 1,000, 
+2,000, 
+we did not standardized our scales. 
+3,000, 
+4,000, 
+5,000. 
+So the way we've drawn this is that. 
+That looks about the same distance as that, 
+my rudimentary measuring.
+
+That right there is supposed to be about the same distance as that. 
+But when I haven't standardized my scale, 
+I see now that this is actually 4,000 away, 
+and this is actually only 4 away still. 
+So we still maintain the 4's, 
+but the scales have changed. 
+So now this is not 4, 
+now it's 4,000, 
+and this one will be easily--
+
+so there was ND, 
+this will easily be classified as a D--
+
+it's not even close, 
+it's only 4 away from that, 
+and it's 4,000 away from that. 
+So we don't want that to happen. 
+We want to standardize our scale so that distances are really distances. 
+So that's the theory, 
+or that's the kind of underlying concept.
+
+So I'm going to put a little line across here and draw one more, 
+and this one's going to be more like our example. 
+So let's say that we've got our income and credit ratings. 
+So I'm going to--
+
+we'll go ahead and start over here. 
+So I'm going to call this the credit rating, 
+I'll just call that CR, 
+and I'm going to call this income about like that. 
+And credit ratings, 
+as we know, 
+go up to 800. 
+Some people have more than 800, 
+be careful here.
+
+So 1, 
+2, 
+3, 
+4, 
+5, 
+6, 
+7, 
+and eight. 
+And we'll label those 100, 
+200, 
+300, 
+400, 
+500, 
+600, 
+700, 
+and 800. 
+Now these guys here we're going to say are 1 and 2 and 3 and 4. 
+And what I'm going to do there is that's income.
+
+So I'm going to say that this is maybe monthly income. 
+So I'm going to say that's 1,000--
+
+eh, 
+shoot. 
+Let's see here. 
+I'm going to turn that into a 5, 
+actually. 
+How about that?
+
+So that's 5,000, 
+that's 10,000, 
+I'm going to make this 15,000, 
+I'm going to make that 20,000. 
+OK, 
+great. 
+So what are we going to do with that? I'm going to say that we have a--
+
+somebody who defaulted, 
+and that person who defaulted on their loan was hanging out here at 600 credit score and $10,000--
+
+I guess we don't want to make that monthly income. 
+Why not? We'll call it monthly income. 
+This is a different income class that we're studying here.
+
+So that is 600 and 10,000. 
+Another one--
+
+so where you call that defaulted. 
+And the other person was at 700, 
+but they made 20,000. 
+So 700 and 20,000 is right about there, 
+and they did not default. 
+So I'm going to call that No Default.
+
+OK, 
+great. 
+So now let's say that I have a person who is at 20,000, 
+but they only have--
+
+it's this kind of oddball who makes $20,000 a month, 
+but who only has a credit score of 100. 
+Because they don't pay their debts very well, 
+but they still have this huge income. 
+So we want to know, 
+hey, 
+what's up with that? We want to use kNN.
+
+So great. 
+So what I would like to do there is, 
+let's put that on hold for just a second. 
+Let's let that simmer. 
+So I'm going to draw the same thing over here and then we'll finish out our example.
+
+So for this one we've got 1, 
+2, 
+3, 
+4, 
+5, 
+6, 
+7, 
+8; and here we've got 1, 
+2, 
+3, 
+4. 
+So let's put these on the same scale. 
+I meant to have this on the scale and that one not on the scale, 
+but I'm going to put this one on the scale and this one not on scale. 
+So this one would be 1, 
+2, 
+3, 
+4, 
+5, 
+6, 
+7, 
+and 8; and this one right here would just be 1, 
+2, 
+3, 
+4--
+
+let's put our same plots on there. 
+So we have one at 6, 
+2, 
+and we have one at 7, 
+4. 
+And we have one--
+
+this was Default, 
+this is No Default, 
+and we have one here at 1, 
+4, 
+and we have a question mark about that guy. 
+What are we going to do with that one? So our idea here is to simply look at distances. 
+So if I look at this distance, 
+this distance, 
+they way that I've designed the little experiment here, 
+is pretty darn easy.
+
+That's at 1, 
+that's at 7, 
+so that distance there is 6. 
+Cool. 
+So the other one we're going to use the Pythagorean theorem and draw a little triangle there to figure out what that distance is. 
+And so that one's at 6, 
+and that one's at 1, 
+so we know that this distance between here and here, 
+we'll go ahead and use my handy dandy colored marker here.
+
+Let's go ahead and kind of highlight what I'm doing here, 
+and I'll call that--
+
+let's make that look nice. 
+So I'll call that 5, 
+right? So that's 1 and 6, 
+so that's 5. 
+And I know that this was at 2 and that's at 4, 
+so now that's a 2.
+
+So great. 
+So we know that this right here is the square root of 20--
+
+of 25. 
+You could write it out, 
+but 5 squared plus 2 squared, 
+which is 4, 
+which equals the square root of 29, 
+which is less than we'll say 6, 
+because 6 squared is 36. 
+So I don't know exactly what the square root of 29 is, 
+but I do know that it's less than six, 
+and the distance between here and here is 6, 
+so I know that in kNN land, 
+this would be--
+
+and as a kNN model, 
+this would be the chosen, 
+I would say that that's a D. 
+So over here, 
+I'll say that that is a Default. 
+And it's probably a pretty safe guess, 
+but that's for another discussion. 
+So what will we do over here, 
+though?
+
+Here, 
+these are in scale. 
+Over here, 
+these are not in scale. 
+So let's do the same thing and we'll see where we end up. 
+So this guy here is pretty easy, 
+all right?
+
+That guy there is simply 1 to 700. 
+So that is 600, 
+right? Pretty easy. 
+We could do the Pythagorean theorem, 
+but there's only one side.
+
+Just start at 100, 
+it's on the same level as 2,000, 
+so we know that that 600. 
+Let's draw our own little marker-o-rama, 
+terrible triangle there. 
+And we know that this is 500. 
+And we know that this here, 
+though, 
+is 10,000, 
+20,000, 
+so we know that that is--
+
+let's write it like that--
+
+10,000. 
+So great. 
+So what I have here is, 
+the square root of 10,000 squared plus 500 squared, 
+and I've done the math on that before, 
+and that is 10,012.49 10,012.49.
+
+I really didn't need to know exactly what it was, 
+because it's in the thousands. 
+And I'm only comparing this 10,012 to that 600. 
+And since that's so much bigger than that, 
+kNN would say, 
+oh, 
+OK. 
+This is--
+
+this should be classified--
+
+no, 
+not even a question that it should be classified as Not Default, 
+let's go ahead and give them a loan even though he has a credit rating of 100. 
+So, 
+which one is correct? It's--
+
+you can--
+
+it's up to you, 
+really. 
+But I would argue that--
+
+let's just look at it this way. 
+We want to put things on the same scale. 
+Because over here, 
+let's say you're over here increasing your income by 100, 
+when you're talking--
+
+your monthly income's in the thousands. 
+So let's say you increase your income by 100 points. 
+Is that a really a big deal? On the big, 
+large scale of things, 
+is that a big increase?
+
+But if you increase your credit rating by 100 points, 
+that's going to all add up the same when we're looking at distances. 
+So when you add up your credit rating by 100 points, 
+that's huge, 
+and your income, 
+100 points, 
+that's not very much. 
+So what do you want to have meaning when you're looking at these distances? You want to put them on the same scale, 
+or else you could end up making a very poor decision.
+
+So great job. 
+We're going to be talking about standardization more. 
+Just want to get us started off on the right foot. 
+Great job, 
+see you next time.
+

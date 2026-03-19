@@ -1,0 +1,219 @@
+---
+title: "Comparing Classification Based on Male and Female Titanic Passengers"
+author: "Isabella Westlauer"
+date: "2026-02-07"
+output: html_document
+---
+
+## Get the titanic data using a GitHub link
+
+Fetch the data, inspect it and tidy it.
+
+```{r}
+library(class)
+library(caret)
+library(e1071)
+library(tidyverse)
+library(plotly)
+library(patchwork)
+```
+
+```{r}
+url <- "https://raw.githubusercontent.com/BivinSadler/MSDS_6306_Doing-Data-Science/Master/Unit%206/titanic_train.csv"
+titanic <- read.csv(url)
+titanic <- titanic[!is.na(titanic$Age), ] #remove observations with NA Age
+titanic$Survived <- factor(titanic$Survived, labels = c("Died", "Survived")) #0 is survived??
+```
+
+Create split datasets for males and females
+```{r}
+titanic_males <- filter(titanic, titanic$Sex == "male") # how can I use regex here to get male, Male, M?
+titanic_females <- filter(titanic, titanic$Sex == "female")
+# titanic_NA_Sex <- filter(titanic, is.na(titanic$Sex)) # there are no NA Sex?
+# 
+# head(titanic_females)
+# # how many females actually died? -- 197 or 75%
+# count(filter(titanic_females, titanic_females$Survived == "Died"))
+```
+
+
+## Partition the data  
+
+Start with females
+```{r}
+# dim(titanic_females) #not the same number of observations as titanic
+# dim(titanic_males)
+# dim(titanic_NA_Sex) # no na values in titanic$Sex
+
+# the number of males and females in the dataset is 714, not 891?
+set.seed(6)
+rows_f = dim(titanic_females)[1] # number of rows is 261
+splitPerc = (600/891) # put 176 out of 261 in the training set
+trainIndices_titanic_f = sample(1:rows_f,round(splitPerc * rows_f))
+trn_f = titanic_females[trainIndices_titanic_f,]
+tst_f = titanic_females[-trainIndices_titanic_f,]
+length(tst_f) #there are only 14 observations in the test set?... no, 14 columns
+dim(tst_f)[1] #85 observations in the test set
+
+set.seed(6)
+rows_m = dim(titanic_males)[1] # number of rows is 453
+splitPerc = (600/891) # put 176 out of 261 in the training set
+trainIndices_titanic_m = sample(1:rows_m,round(splitPerc * rows_m))
+trn_m = titanic_males[trainIndices_titanic_m,]
+tst_m = titanic_males[-trainIndices_titanic_m,]
+dim(tst_m)[1] #148 observations in the test set
+```
+
+## Female Passenger Classifications with K = 3, 5, 10, 20  
+
+```{r}
+# k = 3
+classifications_f = knn(trn_f[,c(3,6)],
+                      tst_f[,c(3,6)],
+                      trn_f$Survived, 
+                      prob = TRUE, k = 3)
+confusionMatrix(table(classifications_f,tst_f$Survived))
+# k = 5
+classifications_f = knn(trn_f[,c(3,6)],
+                      tst_f[,c(3,6)],
+                      trn_f$Survived, 
+                      prob = TRUE, k = 5)
+confusionMatrix(table(tst_f$Survived,classifications_f))
+# k = 10
+classifications_f = knn(trn_f[,c(3,6)],
+                      tst_f[,c(3,6)],
+                      trn_f$Survived, 
+                      prob = TRUE, k = 10)
+confusionMatrix(table(tst_f$Survived,classifications_f))
+# k = 20
+classifications_f = knn(trn_f[,c(3,7)],
+                      tst_f[,c(3,7)],
+                      trn_f$Survived, 
+                      prob = TRUE, k = 20)
+confusionMatrix(table(tst_f$Survived,classifications_f))
+```
+```{r}
+
+# k = 3
+classifications_m = knn(trn_m[,c(3,6)],
+                      tst_m[,c(3,6)],
+                      trn_m$Survived, 
+                      prob = TRUE, k = 3)
+confusionMatrix(table(classifications_m,tst_m$Survived))
+# k = 5
+classifications_m = knn(trn_m[,c(3,6)],
+                      tst_m[,c(3,6)],
+                      trn_m$Survived, 
+                      prob = TRUE, k = 5)
+confusionMatrix(table(tst_m$Survived,classifications_m))
+# k = 10
+classifications_m = knn(trn_m[,c(3,6)],
+                      tst_m[,c(3,6)],
+                      trn_m$Survived, 
+                      prob = TRUE, k = 10)
+confusionMatrix(table(tst_m$Survived,classifications_m))
+# k = 20
+classifications_m = knn(trn_m[,c(3,7)],
+                      tst_m[,c(3,7)],
+                      trn_m$Survived, 
+                      prob = TRUE, k = 20)
+confusionMatrix(table(tst_m$Survived,classifications_m))
+```
+
+
+## Loop for many k values  
+
+```{r}
+accs = data.frame(accuracy = numeric(30), k = numeric(30))
+
+for(i in 1:30)
+{
+  classifications = knn(trn[,c(3,6)],tst[,c(3,6)],trn$Survived, prob = TRUE, k = i)
+  table(tst$Survived,classifications)
+  CM = confusionMatrix(table(tst$Survived,classifications))
+  accs$accuracy[i] = CM$overall[1]
+  accs$k[i] = i
+}
+
+plot(accs$k,accs$accuracy, type = "l", xlab = "k")
+
+```
+## Loop for many k and the average of many training / test partitions  
+```{r}
+iterations = 500
+numks = 30
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+  
+for(j in 1:iterations)
+{
+accs = data.frame(accuracy = numeric(30), k = numeric(30))
+trainIndices = sample(1:dim(titanic)[1],600)
+trn = titanic[trainIndices,]
+tst = titanic[-trainIndices,]
+for(i in 1:numks)
+{
+  classifications = knn(trn[,c(3,6)],
+                        tst[,c(3,6)],
+                        trn$Survived, 
+                        prob = TRUE, k = i)
+  table(classifications,tst$Survived)
+  CM = confusionMatrix(table(classifications,tst$Survived))
+  masterAcc[j,i] = CM$overall[1]
+}
+}
+
+MeanAcc = colMeans(masterAcc) # mean accuracy versus different k values
+plot(seq(1,numks,1),MeanAcc, type = "l") # how do I use plotly to get interactive?
+```
+Pick an age and predict the survival probability of a person that age based on each of the ticket classes.  
+
+```{r}
+
+train_df <- trn %>%
+  select(Survived, Pclass, Age)
+```
+```{r}
+test_df = data.frame(Age = 75.0, Pclass = 1)
+knn(train_df[,2:3], test_df, train_df$Survived, k = 10, prob = TRUE) 
+```
+```{r}
+test_df = data.frame(Age = 75.0, Pclass = 2)
+knn(train_df[,2:3], test_df, train_df$Survived, k = 10, prob = TRUE) 
+```
+```{r}
+test_df = data.frame(Age = 75.0, Pclass = 3)
+knn(train_df[,2:3], test_df, train_df$Survived, k = 10, prob = TRUE) 
+```
+
+How do I generate a test_df that has many combination of age and class?
+```{r}
+# actually... after I do that I want to use standardization on Age and Class,
+# because I think a very young or very old age is significant when looking at survival
+
+# 1. Initialize an empty data frame with column names and types
+test_df <- data.frame(Pclass = numeric(0), Age = numeric(0))
+# 2. Use a for loop to iterate from 1 to 5
+for (i in 1:3) { #Add classes from 1 to 3
+  for (j in 0:75) { #Add ages from 0 to 75
+    new_age <- j
+    new_pclass <- i
+    new_row<- data.frame(Age = new_age, Pclass = new_pclass)
+    test_df<- rbind(test_df, new_row)
+  }
+}
+
+# I don't need a nested for loop to do this, do I?
+# test_df_better = c(seq(1,3,1), seq(0,75,1))
+```
+
+KNN Cross Validation
+```{r}
+# Choose k=10 because of the previous graph
+knn(train_df[,2:3], test_df, train_df$Survived, k = 10, prob = TRUE)
+# with cross-validation
+classifications = knn.cv(train_df[,2:3],train_df$Survived, k = 10)
+# confusionMatrix expects the same levels in the same order
+confusionMatrix(classifications,train_df$Survived)
+
+```

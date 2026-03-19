@@ -1,0 +1,196 @@
+Multinomial Responses
+
+Hi. 
+Let's talk about how k-NN models can handle multinomial responses. 
+Specifically, 
+we'll be looking at an example with the 
+Iris data once more. 
+So let's talk a little bit about multinomial responses in k-NN.
+
+We've seen that k-NN is basically a majority rule algorithm. 
+And so far, 
+we've looked at it with binary responses. 
+
+But actually, 
+k-NN can handle multinomial responses as well, 
+where there's more than two levels. 
+So k-NN will look at that point of interest, 
+k's neighbor, 
+and basically the majority vote wins.
+
+That's what we're looking at so far. 
+
+But the key is is with binary responses, 
+majority rule is greater than 50%. 
+But we'll see with multinomial responses the one that's selected, 
+
+the one with the majority, 
+I guess it's not really majority rule after you're multinomial, 
+because you can have less than 50%, 
+but still have the most votes. 
+Because they're being split amongst more than just two categories.
+
+So one last thing that I haven't mentioned too much in the past was what happens when the distances are ties. 
+
+So if you're looking at k-NN equals 3, 
+but you really have four things because they are--
+
+you've got two, 
+and then you've got two that are tied, 
+you've got two that are unique, 
+that are close, 
+but then the last one is tied. 
+
+So when there is a tie, 
+because you could have ties in distances, 
+it just flips a coin. 
+So if they had different labels on them, 
+it just flips a coin and takes one of them. 
+So if you're wondering why sometimes in a binary sense, 
+or even in any sense, 
+you might be getting different answers each time you run k-NN, 
+that's usually because any time you run that, 
+it's usually because there's some random process going on in the background.
+
+And that could be the reason, 
+if you run k-NN twice on the same data and get different classifications, 
+because there might be a tie. 
+And it's just making a random flip. 
+So just a heads up on that one. 
+But here we have it.
+
+So here's the example with the Iris data. 
+We've seen this before. 
+We are going to look at three classifications here. 
+Clearly, 
+this is a multinomial problem.
+
+It could be Setosa, 
+Versicolor or Virginica. 
+Let's look at this one. 
+It's about 6.2 and looks like about 2.8.
+
+We'll go ahead and flip on over. 
+So we're going to take this 6.2 right here and 2.8, 
+flip on over to RStudio.
+
+And we're going to put it in a data frame. 
+And then we'll let k equals 3 have at it. 
+And we do that and it says, 
+hey, 
+it looks like it is Versicolor. 
+If I let k-NN, 
+now k equals 15, 
+maybe that'll give us a different response.
+
+Sure enough, 
+this one gives us Virginica. 
+So based on if it's k equals 3 or k equals 15, 
+it gives us a different answer. 
+When we look at the data, 
+we're really not that surprised. 
+So we'll flip on back over.
+
+And we look at this, 
+we see that it's in a cloud of kind of all kind of scattered Versicolor and Virginica. 
+So we're not so surprised that we changed k, 
+and it kind of gives us a different answer. 
+But that's what the data has suggested. 
+And that's what we're going with.
+
+So next up, 
+let's look at this point. 
+This is in a cloud of Setosa. 
+So we're pretty sure that no matter what we do, 
+it's going to choose Setosa. 
+But let's verify that.
+
+And let's see what happens. 
+I'm going to flip it on over here. 
+And this time, 
+that coordinate was at 5.02 and 4.02.
+
+So we do that. 
+I'm going to let k equal 3. 
+And k equals 3, 
+sure enough, 
+says 100% votes went to Setosa. 
+So that's what we're going to pick.
+
+We can look at k-NN equals 15 as well. 
+And sure enough, 
+100% of those votes went to Setosa as well. 
+So let's look at our last one. 
+So let's flip on back over one more time.
+
+Just like that. 
+And let's look at our last one. 
+Our last one is in this kind of no man's land. 
+So we could really use a model here.
+
+A k-NN type model--
+
+and we'll use Euclidean distance to make a decision here. 
+Because we don't see too many that really have these kind of readings, 
+these sepal widths and sepal lengths. 
+So that one looks like at about 5.5. 
+And some are around 3.25.
+
+Somewhere around there. 
+Let's flip on back over. 
+And we'll have 5.5. 
+Sure enough. 
+5.5 and 3.25.
+
+So I'm going to run k-NN equals 3. 
+What will it predict? It looks like it's predicting 100% to Setosa. 
+But now let's let it do 15.
+
+Let's bring a little more of its peers into its neighbors, 
+if you will, 
+into the mix. 
+And I run that. 
+And it is also Setosa. 
+But we see here that the probability is 50%.
+
+And we remember here that this isn't a binary problem. 
+
+
+So first of all, 
+how can it be 50%? And second of all, 
+how does 50% win, 
+because that's the most votes. 
+Looks like Setosa got the most votes.
+
+And if we flip on back over, 
+we can kind of see a representative. 
+This isn't a perfect circle. 
+But actually, 
+let's look at the 15 circle. 
+So if I go a little bit wider here, 
+it looks like we've got about 1, 
+2, maybe 7 out here.
+
+And we've got blue or green ones, 
+1, ... 7. 
+And we've got one hanging out here of a blue one. 
+and I'm not sure if I'd drawn this circle actually perfectly or not. 
+
+But certainly, 
+if it's 50%, 
+so now if it's got 50% of the votes, 
+there may be actually a tie going on in here. 
+Because we've got 15. 
+And so how are we going to get half out of 15? We'll have to investigate that.
+
+But for sure, 
+it's pretty darn close into here. 
+And in the end, 
+if we flip on over one more time, 
+we are saying that Setosa has 50% of those votes. 
+And that's what it went with in the end. 
+k-NN classifiers definitely handle multinomial responses. 
+So I'll see you out there. 
+Great job. 
+See you next time.
+

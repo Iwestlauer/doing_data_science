@@ -1,0 +1,273 @@
+Internal CV Leave One Out
+
+Hi. 
+Now let's talk about internal and, 
+more specifically, 
+leave one out cross-validation. 
+So far, 
+we have talked about external cross-validation. 
+We just called it cross-validation, 
+but really, 
+we can be more specific in calling it external cross-validation.
+
+So what external cross-validation is, 
+as we can see here at the bottom, 
+is we have one training set, 
+and then we have this test set, 
+and they don't mix up. 
+So if you're in the training set, 
+you're always in the training set. 
+If you're in the test set, 
+then you're always being evaluated from the model that was trained on the training set. 
+So I've got a little animation here that'll help see all that.
+
+But when there isn't a lot of data, 
+external cross-validation may yield small training in test sets, 
+and that can be a real problem. 
+We could do what we did before and constantly change those training and test sets. 
+But let's see what internal cross-validation is. 
+But for example, 
+if n equals 20 and we have an 80-20 test/train split, 
+the train set would only have 16 observations, 
+and the test set would only have four observations.
+
+So you're kind of really using a large percent of the small available data that you have in the training set that you could, 
+maybe--
+
+even if you could add one more to the training set, 
+that would be kind of a larger percent, 
+16 to 17, 
+rather than from 1,016 to 1,017, 
+when we had much more data. 
+So this is a real problem. 
+So each observation in the test set is classified based on a k-NN model based on only 16 observations. 
+Again, 
+even if we add some over there, 
+it's not going to be a lot more.
+
+But percentage-wise, 
+we'd like to use all the data, 
+if possible. 
+So this is a visual of what we have. 
+We have 16 green dots on the left, 
+and we've got these four blue dots and one red dot over on the right giving us our test set. 
+So what happens if I'm on the red dot here and I want to get my prediction?
+
+I go over to the 16 dots. 
+And I see, 
+hey, 
+which of the--
+
+you know, 
+if it's k-NN 3. 
+Then which of those three 16 is closest? I take majority rule, 
+and I get my prediction for that red dot on the right. 
+And then I go to the next one in the test set, 
+and I say, 
+hey, 
+look at those same 16 and tell me which three are closest.
+
+And then I get my prediction. 
+I do that for the next one, 
+and I do it for the last one. 
+I say, 
+look at those same 16. 
+Which three are closest?
+
+And then I make my majority rule prediction. 
+So is there a smarter way? And so there is. 
+We've got internal CV, 
+or leave one out, 
+more specifically, 
+here.
+
+There are other variations. 
+We're going to look at the leave one out. 
+So with internal leave one out CV, 
+we classify each observation using a k-NN model trained on the other n minus 1 observations. 
+So all we're going to do, 
+leave one out, 
+we're going to say, 
+oh, 
+we want to predict this one?
+
+Well, 
+let's use all of the other ones to say, 
+hey, 
+which one is closest? Which three are closest to this one? And then we want to use another one. 
+We'll show that here in a graphic.
+
+Then I can use the other 19 that are there. 
+I've got 20 of them here. 
+Then I'll hold one out. 
+So let's just check it out in a graphic.
+
+So each classification will then be based on 19, 
+rather than 16, 
+observations. 
+So looking at the one I have here, 
+this guy, 
+we'll go ahead and highlight him. 
+We're going to use these other 19 and say, 
+hey, 
+which ones are closest? Which three are closest?
+
+And then I will go and say, 
+oh, 
+well, 
+now let's classify this guy. 
+We want to evaluate how well this type of model is predicting, 
+and the only data set--
+
+we only have these 20 observations to do so. 
+So I'm going to hold this red one out and see which three are closest to this one and then make an observation for it. 
+And then I'll hold this one out. 
+And then I'll hold that one out.
+
+And you'll do that for all the data sets, 
+or for all the points in there--
+
+we'll do it 20 times--
+
+using the other 19 in that k-NN model. 
+Or really, 
+this extends to a lot of other models. 
+That's what internal leave one out cross-validation is. 
+Later, 
+we'll cover k-fold cross-validation, 
+which is where we're taking groups of more than one and leaving the rest out.
+
+But we'll cover that a little bit later. 
+This is the classic leave one out. 
+So let's look at a quick example. 
+So in this one, 
+we have our classic--
+
+just our toy data set that we were working with earlier. 
+And we've done knn.cv now. 
+This function is knn.cv.
+
+It doesn't take a test set, 
+because the test set is going to be part of the training set. 
+For each value of the training set, 
+we're going to hold it out, 
+do a model. 
+And then we're going to hold the next one out, 
+have a different training set. 
+Have a different training set, 
+a little bit, 
+for each value in the training set.
+
+So we just give it the explanatory variables of the training set, 
+and we give it the response variable of the training set, 
+and we say what we want k to be. 
+And again it will hold one out. 
+So for this one that I have highlighted right here, 
+it's going to look at the other 10 and say, 
+hey, 
+which three are closest, 
+not including itself? And then it'll do the same for that one.
+
+It'll say, 
+oh, 
+OK, 
+this one's way out here, 
+but which three are closest? And let's make a decision. 
+And then I'll do one here, 
+and then I'll do one there, 
+and then I'll do one--
+
+I'm just going to skip ahead. 
+But I'll do one for all of these things and then see how well it predicts. 
+So let's go ahead and flip on over here. 
+And I will run it.
+
+So we've got this. 
+This is the same code you just saw. 
+And I'll run that guy. 
+And here it is.
+
+It says, 
+hey, 
+leaving the first one out and using k equals 3, 
+using that as the training set, 
+those other 19, 
+I predict yes. 
+And for each of those, 
+we had our--
+
+19 of them. 
+We had 11 to begin with. 
+So we should have 1, 
+2, 
+3, 
+4, 
+5, 
+6, 
+7, 
+8, 
+9, 
+10, 
+11 responses, 
+because we held one out 11 times, 
+one for each value of the data set. 
+And so if we flip back over here, 
+we've got--
+
+this is what we'll have. 
+So classifications equals k-NN. 
+Classifications, 
+these are the ones that we just saw. 
+How good are those labels?
+
+We have them. 
+That's in the training set. 
+We have the labels for that. 
+So we can compare yes--
+
+was it really yes--
+
+no--
+
+was it really no? And I'll do that here. 
+So if I say data.frame, 
+I take the classifications and--
+
+so I've just made a data frame out of it. 
+So you can just see it right here--
+
+classifications and true. 
+So yes, 
+it did a good job. 
+No, 
+it did a good job. 
+No, 
+no.
+
+But this one, 
+for observation four, 
+it misclassified it. 
+So rather than look through all of them, 
+we can, 
+of course, 
+make a confusion matrix. 
+And there should be 11 values in here--
+
+4 plus 1 plus 1 plus 5 is 11. 
+So the reference is the truth. 
+So there were truly five nos, 
+and there were truly six yeses. 
+Four of the five nos were classified correctly.
+
+Five of the six yeses were classified correctly, 
+giving us an overall accuracy of 81.82%, 
+or 0.8182. 
+And that is how you can use internal--
+
+that's what internal cross-validation is--
+
+specifically leave one out. 
+And we can do that in k-NN using the function knn.cv. 
+Great job. 
+I'll see you next time.
+

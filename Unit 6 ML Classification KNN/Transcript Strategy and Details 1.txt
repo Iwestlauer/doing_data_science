@@ -1,0 +1,84 @@
+Strategy and Details 1
+
+
+Hi. 
+Let's look at a model for classification called K Nearest Neighbors, or, for short, k-NN. 
+So let's get back to our example here or what we'd like to look at. 
+We are trying to classify somebody as being qualified for a credit card or not.
+
+And we've got two variables to help us do that, two explanatory variables--
+
+credit score rating and income. 
+So let's look and see what our person has. 
+They have an income of $92,000, and they have a credit score of 694. 
+And so one intuitive strategy here would just be to say, well, let's find people that are similar to this person.
+
+Let's find people that have something close to $92,000, something close to 694, and we'll just adopt what they are. 
+If they were qualified, then we'll say, this person's qualified. 
+And if they were not, then we'll say that they were not. 
+So what we've done here is there are 11 people that we've labeled that we know they were qualified or they were not--
+
+or they were accepted to this credit card or they were not accepted this credit card. 
+Those are 11 people there. 
+So if they qualified, it was kind of an orange peach for no and a green or blue there for yes. 
+And that's our training set.
+
+So that's what we've got there. 
+So moving on, our strategy is going to be simple. 
+So for k-NN--
+
+this is really going to be 3-NN that we talk about right now--
+
+is the k is the number of people we're going to look at. 
+So I'm just going to be right here sitting at $92,000 and 694, which is that point that we see right here. 
+And I'm going to look for the three people that are closest to me. 
+And it's nice that I pick an odd number for k, because in the end, if there's only two things that can happen--
+
+a yes or a no, in this case--
+
+I won't have a tie. 
+So I'm going to look around and say, hm, I'm just going to take majority rules. 
+If all three of the nearest people to me were accepted, then I'll say that I'm accepted. 
+And if they all three were denied, I'll say I was denied, but if two out of three were accepted, then I'll go with the accepted.
+
+So we'll then choose those three closest subjects, and then let majority rule right after that. 
+But what do we really mean by "close"? So by "close," we mean there's a lot of distances. 
+In this class, we'll talk about the Euclidean distance, but there's tons of other--
+
+if you look in our textbook or even just on the web, there's a Mahalanobis distance. 
+There's all sorts of other distances to think about. 
+But Euclidean distance is, probably by far, the most used one and the one that we have most intuitive practice with. 
+So we've got the Pythagorean theorem there.
+
+So basically, all we're going to do is say, here is our point, and we're going to look, and we're going to say, let's say it's this to the 12th point. 
+So x credit score 12 minus x credit score theta, where theta is all of these other 11. 
+We're going to do this for each one. 
+So for each one, right now, I'm just looking at this particular point, saying that that's 0.7.
+
+So I'm going to say, xrc12 minus xrc7. 
+I'm going to square that, plus y income 12, minus y income 7. 
+I'm going to square that. 
+And that, if I do that, that will give me this distance, 23.26.
+
+We can see what we did here. 
+So it's the 694, 715. 
+This green or blue dot here is about 715. 
+And it's about a 102 in just over 100 there, so it's about 102 in income.
+
+And so that was, after I've done the math, about 23.26 units away. 
+So I would do that for this one, which looks a lot closer. 
+I'd do it for this one, which actually looks a lot closer, and maybe that's the third one.
+
+So that's the idea. 
+It's a pretty intuitive idea. 
+So moving on, there is the circle that I would draw there, and it's got the three closest ones are this one, this one, and that one. 
+And it's pretty easy to see now that if we go with majority rule, with k equals 3, that we will guess that this person will not qualify.
+
+So we'd classify this person as a no, because we've got this person and this person for nos, and we did have a yes, but two beats one. 
+And so 66% of those that were nearest to us were no, so we'll guess that we're a no. 
+Could be wrong, but we're going to go with what the evidence suggests. 
+So that is a quick look at 3-NN, or k-NN with k equals 3 to classify.
+
+Awesome job. 
+I'll see you next time.
+

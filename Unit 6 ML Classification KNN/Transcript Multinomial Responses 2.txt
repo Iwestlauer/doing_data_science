@@ -1,0 +1,280 @@
+Multinomial Responses 2
+
+Hi. 
+Let's look at one more example of how kNN can work with multinomial responses. 
+In this setting, 
+we're going to look at archeology. 
+So here we go.
+
+Let's take a trip over to England. 
+And we've got pottery shards that were collected from four sites in the British Isles. 
+Those sites are Llanedyrn, 
+Caldicot, 
+Isle Thorns, 
+and Ashley Rails. 
+So we have these four cities with this pottery.
+
+But we're not sure--
+
+the potteries are scattered. 
+So we're not sure which of these cities these pieces of pottery go to. 
+So each pottery sample is returned to the lab for a chemical assay. 
+And so it was analyzed.
+
+And the assays have concentrations of five different chemicals. 
+And these five different chemicals that we're measuring in these pieces of pottery are aluminum, 
+iron, 
+magnesium, 
+calcium, 
+and sodium. 
+And maybe based on the chemical composition of these pottery pieces, 
+we can get a better idea of what their origin was. 
+So our question of interest is, 
+we have found a piece of pottery with the following chemical composition.
+
+So it's got aluminum of 12.3, 
+it's got iron of 6.7, 
+it's got magnesium of 4.9, 
+it has got calcium of 0.1,
+
+and it has got sodium of 0.11. 
+So what is the best guess as to its origin? Well, 
+what we'll need is some labeled data. 
+What would be nice to do is have some shards from these four cities that we can look at the chemical composition, 
+we can put it into our model, 
+use that data to make a better decision with the shards that we don't know.
+
+So we've got this shard here with this chemical composition. 
+We don't know what its labels are. 
+But we do have some other data. 
+And that data is right here.
+
+It's in pottery_data.csv. 
+So go ahead and go out and get that and load it up. 
+And this is what it will look like. 
+So you've got the aluminum.
+
+You've got the iron. 
+And you've got the magnesium, 
+calcium, 
+and sodium. 
+And then we've got the labels. 
+So this is supervised learning.
+
+And we want to use--
+
+we know that these came from Llanedyrn. 
+We've got Caldicot, 
+so on and so forth. 
+So what we'd like to do is, 
+we will cruise over to RStudio, 
+our friend. 
+And I've already loaded the data.
+
+And you may have also. 
+So let's go ahead and do this together. 
+So basically, 
+I'm going to do this kind of all in one shoot here. 
+So this is a confusion matrix.
+
+But before we do that, 
+we're going to do the table and the classifications. 
+Before we do that, 
+we have to get classifications. 
+So this will be knn.cv. 
+So we're going to do knn.cv
+
+pottery. 
+And so we're going to evaluate this model with k equals 3. 
+So just kind of taking this from the inside out, 
+we're going to say, 
+knn.cv, 
+so it's going to return to us the predictions with a leave one out type cross-validation.
+
+We're going to pass it rows one through five. 
+Those are the elements. 
+That's our explanatory variable, 
+the concentrations of the elements. 
+And then we're going to pass it the labels.
+
+That's pottery site. 
+And then we're going to tell it k equals 3 right here. 
+And so then we've got the--
+
+yes. 
+So checking that out. 
+So for a second there, 
+I was wondering, 
+hey, 
+where that extra pottery site came from. 
+But notice--
+
+and that's another thing of RStudio, 
+that we can show here. 
+You've probably already noticed it. 
+But if you kind of click across--
+
+maybe we can zoom in on this one. 
+So if you kind of go across this parentheses, 
+you can see this parentheses here is connected to that knn. 
+So this closes off the knn call. 
+So this pottery site actually goes with the table call.
+
+You can see that the parentheses here in the table gets highlighted. 
+And so this pottery site is saying, 
+if you remember the table call, 
+all the classifications go into the first argument of table. 
+And then the actual ones go into the second one. 
+That's how we're going to build our confusion matrix.
+
+And then finally, 
+this last parentheses goes to that confusion matrix call. 
+That function. 
+And that says, 
+hey, 
+taking the confusion matrix that table makes, 
+let's go and get the sensitivity and specificity and accuracy, 
+so on and so forth. 
+So after all of that, 
+let's go ahead and run it.
+
+And right on the end of that, 
+we've got the return. 
+So it did all of that at once. 
+And we've got the return of the confusion matrix. 
+Notice, 
+our confusion matrix is a little bit bigger this time, 
+because we have a multinominal response.
+
+We've got four possibilities for the response. 
+They're calling it here class A. 
+Here we go. 
+We've got our mix right here.
+
+So this is--
+
+we'll call that Ashley Rails, 
+Caldicot, 
+Isle, 
+and this one was Llanedyrn. 
+So pretty easy to read right here. 
+But we can check it out. 
+So this is still the truth on top.
+
+So there were five from Ashley Rails. 
+And one was classified correctly. 
+From Caldicot, 
+there were two total. 
+And they were both misclassified.
+
+And then from the Isle, 
+we had three and two, 
+so there were five total. 
+And it got two of them right. 
+And Llanedyrn had 10 of those were correctly classified. 
+And four were misclassified as Caldicot.
+
+So that's our confusion matrix. 
+We have an overall accuracy of 0.5, 
+which may not sound very good. 
+But when we think about it, 
+we say, 
+well, 
+what would a blind guess do?
+
+A blind guess would give us 25%. 
+We've got four choices. 
+If we don't know anything else about it, 
+then we've got four choices. 
+So we'd only have a 25% of just a random guess.
+
+And we're saying with our model here we can get it 50% right. 
+Now, 
+that's a little bit deceiving, 
+and we'll talk about this more in live session. 
+Be sure to bring it up as a question. 
+But we don't have balance.
+
+Most of them are from Llanedyrn. 
+So we don't have this balanced data. 
+So it looks like 14 are from Llanedyrn. 
+So if we just guessed Llanedyrn every time, 
+we'll probably do pretty well.
+
+And actually, 
+we'll probably do better than 50%. 
+And that's not a very good model. 
+So we've got to think about how balanced the frequencies are across the response levels. 
+But again, 
+we'll discuss that more later.
+
+It's just purely looking at it in [? accuracy, 
+?]
+
+50% is better than a coin flip when I have four choices. 
+So we've got the sensitivity. 
+We've got specificity. 
+We can run through these.
+
+So we can look and kind of evaluate our model. 
+But what we'd like to do here to finish it off is to use our model to remember. 
+And let's go ahead and flip back real quick. 
+We would like to use our model to--
+
+excuse me. 
+To classify that piece of pottery that we had the chemical assays of. 
+But we didn't know where it came from. 
+So given this data, 
+we can see where it comes from.
+
+So these are the results that we just looked at. 
+I'm going to look at this question of interest. 
+And we remember that we had aluminum of 21, 
+iron of 6.7, 
+magnesium of 4.9,
+
+calcium of 0.1, 
+and sodium of 0.11. 
+So what is our best estimate? We'll call this an estimate as to its origin.
+
+So what we're going to do--
+
+I'm going to flip back over. 
+Last time over to the RStudio. 
+And here I have the data frame. 
+So I'm calling it QOI.
+
+That's our question of interest. 
+If I typed out QOI, 
+you would see that that's got all of the concentrations in there, 
+by the correct names. 
+And I'm going to do a kNN classifier with kNN equals 3. 
+And again, 
+drum roll please, 
+because we're about to get what the data suggests with k equals 3 that it comes from Llanedyrn.
+
+If I let more of the data talk, 
+if I let five of its nearest neighbors come by, 
+it also is guessing. 
+Again, 
+it's not super confident. 
+It's pretty confident here. 
+I say confident.
+
+It's got 66% of the votes when I only look at three, 
+but it only has 40% of the votes when I look at five. 
+But both times, 
+the best guess that we have here is that it's Llanedyrn. 
+And that's where I'd guess it was from. 
+So that's how we could use kNN classifier.
+
+And this is just the results that we just looked at there. 
+So this is how we could use a kNN classifier with k-NN equals 3 or k-NN equals 5 to 
+solve a real world problem on how to classify pottery to these four cities in the British Isles. 
+So great job. 
+I had a lot of fun.
+
+I hope you did as well. 
+I'll see you around. 
+Great job.
+

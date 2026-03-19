@@ -1,0 +1,306 @@
+---
+title: "Unit 6 ML Classification and KNN"
+author: "Isabella Westlauer"
+date: "2026-02-03"
+output: html_document
+---
+
+## Get the titanic data using a GitHub link
+
+Fetch the data, inspect it and tidy it.
+
+```{r}
+#install package and load library
+# install.packages("class")
+# install.packages("caret")
+# install.packages("e1071")
+# install.packages("tidyverse")  # only needs to be run once
+
+library(class)
+library(caret)
+library(e1071)
+library(tidyverse)
+library(plotly)
+library(ggthemes)
+
+
+# Assign the raw GitHub URL to a variable
+url <- "https://raw.githubusercontent.com/BivinSadler/MSDS_6306_Doing-Data-Science/Master/Unit%206/titanic_train.csv"
+
+# Read the data into a data frame
+titanic <- read.csv(url)
+
+# View the first few rows of the data
+head(titanic)
+```
+```{r}
+
+# Question -- what is a better way to find the index of a column if you know the header?
+
+# column 1 is PassengerID, column2 is Survived
+# Class is col3, Age is col6
+
+sum(is.na(titanic)) #177 NA values in the dataset
+sum(is.na(titanic$Age))
+titanic <- titanic[!is.na(titanic$Age), ]
+
+sum(is.na(titanic)) # got rid of all the NA values!
+
+# put survived in as "Survived" and "Died"
+titanic$Survived <- factor(titanic$Survived, labels = c("Died", "Survived"))
+
+```
+## Partition the data  
+
+```{r}
+set.seed(6) # What does this do? Guarantees the same random values, makes this reproducible.
+splitPerc = 600/891
+# dim(titanic) is 891 rows, 12 columns
+rows = dim(titanic)[1] # number of rows in titanic data = 891
+trainIndices_titanic = sample(1:rows,round(splitPerc * rows)) # sample(1:891, 600)
+# round(splitPerc * rows) # 600 in the training set
+trn = titanic[trainIndices_titanic,]
+tst = titanic[-trainIndices_titanic,]
+# dim(test) #291 rows
+```
+
+## Classifications with K = 3, 5, 10, 20  
+
+```{r}
+# k = 3
+classifications = knn(trn[,c(3,6)],
+                      tst[,c(3,6)],
+                      trn$Survived, 
+                      prob = TRUE, k = 3)
+# table(classifications,tst$Survived)
+confusionMatrix(table(classifications,tst$Survived))
+```
+```{r}
+# k = 5
+classifications = knn(trn[,c(3,6)],
+                      tst[,c(3,6)],
+                      trn$Survived, 
+                      prob = TRUE, k = 5)
+# table(tst$Survived,classifications)
+confusionMatrix(table(tst$Survived,classifications))
+```
+```{r}
+# k = 10
+classifications = knn(trn[,c(3,6)],
+                      tst[,c(3,6)],
+                      trn$Survived, 
+                      prob = TRUE, k = 10)
+# table(tst$Survived,classifications)
+confusionMatrix(table(tst$Survived,classifications))
+```
+```{r}
+# k = 20
+classifications = knn(trn[,c(3,7)],tst[,c(3,7)],
+                      trn$Survived, prob = TRUE, k = 20)
+# table(tst$Survived,classifications)
+confusionMatrix(table(tst$Survived,classifications))
+# CM = confusionMatrix(table(tst$Survived,classifications))
+# CM$overall[1] # Accuracy 0.6907216
+
+```
+
+## Loop for many k values  
+
+```{r}
+accs = data.frame(accuracy = numeric(30), k = numeric(30))
+
+for(i in 1:30)
+{
+  classifications = knn(trn[,c(3,6)],tst[,c(3,6)],trn$Survived, prob = TRUE, k = i)
+  table(tst$Survived,classifications)
+  CM = confusionMatrix(table(tst$Survived,classifications))
+  accs$accuracy[i] = CM$overall[1]
+  accs$k[i] = i
+}
+
+max_acc <- max(accs$accuracy)
+best_k  <- accs$k[accs$accuracy == max_acc]
+best_acc <- accs$accuracy[accs$accuracy == max_acc]
+```
+## Plots
+
+```{r}
+plot(accs$k, accs$accuracy,
+     type = "l",
+     xlab = "k",
+     main = "k value versus accuracy for k=1-30")
+
+points(best_k, best_acc,
+       pch = 19,
+       col = "red",
+       cex = 1.5)
+
+abline(v = best_k,
+       col = "red",
+       lty = 2,
+       lwd = 2)
+
+par(xpd = TRUE)
+text(best_k, best_acc,
+     labels = paste("k =", best_k),
+     pos = 3,
+     offset = 0.75,
+     col = "red")
+par(xpd = FALSE)
+
+
+```
+## Loop for many k and the average of many training / test partitions  
+```{r}
+iterations = 500
+numks = 90
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+  
+for(j in 1:iterations)
+{
+accs = data.frame(accuracy = numeric(90), k = numeric(90))
+trainIndices = sample(1:dim(titanic)[1],600)
+trn = titanic[trainIndices,]
+tst = titanic[-trainIndices,]
+for(i in 1:numks)
+{
+  classifications = knn(trn[,c(3,6)],
+                        tst[,c(3,6)],
+                        trn$Survived, 
+                        prob = TRUE, k = i)
+  table(classifications,tst$Survived)
+  CM = confusionMatrix(table(classifications,tst$Survived))
+  masterAcc[j,i] = CM$overall[1] # this refers to the accuracies
+}
+}
+
+MeanAcc = colMeans(masterAcc) # mean accuracy versus different k values
+```
+
+```{r}
+plot(seq(1,numks,1),MeanAcc, 
+     type = "l",
+     xlab = "k",
+     ylab = "mean accuracy",
+     main = "master accuracy of k values 1 to 30")
+
+max_mean_acc <- max(MeanAcc)
+best_k <- which(MeanAcc == max_mean_acc)
+
+points(best_k, MeanAcc[best_k],
+       pch = 19,
+       col = "red")
+
+abline(h = max_mean_acc,
+       col = "red",
+       lty = 2,
+       lwd = 2)
+
+abline(v = best_k,
+       col = "red",
+       lty = 2,
+       lwd = 2)
+par(xpd = TRUE)
+text(best_k, max_mean_acc,
+     labels = paste("k =", best_k),
+     pos = 3,
+     offset = 0.75,
+     col = "red")
+par(xpd = FALSE)
+
+```
+Pick an age and predict the survival probability of a person that age based on each of the ticket classes.  
+
+```{r}
+# choose only survived, class, and age from the training dataset
+# train_df <- trn %>% select(Survived, Pclass, Age)
+# str(train_df) 
+# str(classifications)
+# okay Survived is an int but needs to be a factor
+
+train_df <- trn %>%
+  select(Survived, Pclass, Age) %>%
+  mutate(Survived = factor(Survived, levels = c(0, 1)))
+
+# What are all the levels of Pclass? ha! it works just like Excel!
+# unique(titanic$Pclass)
+# try one data point, age 75 and class 3
+# Had to open the csv and use Excel fmlas to check this
+```
+```{r}
+test_df = data.frame(Age = 75, Pclass = 1)
+knn(train_df[,2:3], test_df, train_df$Survived, k = 5, prob = TRUE) # 75% survived
+```
+```{r}
+test_df = data.frame(Age = 75, Pclass = 2)
+knn(train_df[,2:3], test_df, train_df$Survived, k = 5, prob = TRUE) # 80% died
+```
+```{r}
+test_df = data.frame(Age = 75, Pclass = 3)
+knn(train_df[,2:3], test_df, train_df$Survived, k = 5, prob = TRUE) # 60% died
+```
+
+How do I generate a test_df that has many combination of age and class?
+```{r}
+# actually... after I do that I want to use standardization on Age and Class,
+# because I think a very young or very old age is significant when looking at survival
+
+# 1. Initialize an empty data frame with column names and types
+test_df <- data.frame(Pclass = numeric(0), Age = numeric(0))
+# 2. Use a for loop to iterate from 1 to 5
+for (i in 1:3) { #Add classes from 1 to 3
+  for (j in 0:75) { #Add ages from 0 to 75
+    new_age <- j
+    new_pclass <- i
+    new_row<- data.frame(Age = new_age, Pclass = new_pclass)
+    test_df<- rbind(test_df, new_row)
+  }
+}
+
+# I don't need a nested for loop to do this, do I?
+# test_df_better = c(seq(1,3,1), seq(0,75,1))
+```
+
+KNN Cross Validation
+```{r}
+# Choose k=10 because of the previous graph
+knn(train_df[,2:3], test_df, train_df$Survived, k = 10, prob = TRUE)
+# with cross-validation
+classifications = knn.cv(train_df[,2:3],train_df$Survived, k = 10)
+# confusionMatrix expects the same levels in the same order
+confusionMatrix(classifications,train_df$Survived)
+
+```
+
+Since I want to consider a passenger age 75, I need to standardize.
+```{r}
+#create standardized variables
+titanic$Z_Pclass = scale(titanic$Pclass)
+titanic$Z_Age = scale(titanic$Age)
+
+#Internal CV
+#Raw Limit and AGE
+classifications = knn.cv(train_df[,2:3],train_df$Survived, prob=TRUE, k = 10)
+confusionMatrix(classifications,train_df$Survived)
+
+#make titanic's survived into levels
+titanic_leveled <- titanic %>%
+  select(Survived, Pclass, Age, Z_Pclass, Z_Age) %>%
+  mutate(Survived = factor(Survived, levels = c(0, 1)))
+
+#Standardized
+classifications = knn.cv(titanic_leveled[,4:5],
+                         titanic_leveled$Survived, 
+                         prob=TRUE, 
+                         k = 10)
+confusionMatrix(classifications,
+                titanic_leveled$Survived)
+
+titanic_leveled$classifications<- classifications
+
+titanic_leveled %>% 
+  ggplot(aes(x = Age,Pclass,color = classifications)) + 
+  geom_point() +
+  ggtitle("Passenger Age and Class by Classification")
+```

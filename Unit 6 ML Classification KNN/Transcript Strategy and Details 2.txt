@@ -1,0 +1,26 @@
+Strategy and Details 2
+
+Hi. 
+Now let's talk about 5-NN. 
+And it's going to go a lot like 3-NN. 
+So this will be short and sweet but let's make sure we really own what KNN is actually doing.
+
+So we have our person here. 
+Again, 92 income and a 694 credit score. 
+But now we want to take the closest 5NN, not just the closest three. 
+And that's really the only difference.
+
+We're going to look at all those distances and choose the five closest. 
+So we see right here that we actually have one, if you can see that blue one in there, two, and three. 
+So we have three that were yeses, and we have two that were nos. 
+And that's it.
+
+Majority rules, 3 over 2. 
+And we have just done k and n with k equals 5. 
+For here, we will guess that that person is a yes with the same income and the score. 
+But if we change k, the variable will change your answer, like we've done here.
+
+So that's KNN with k equals 5. 
+Great job. 
+I'll see you next time.
+

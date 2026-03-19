@@ -1,0 +1,222 @@
+Strategy and Details 3
+
+Hi. 
+Now that we have an idea of how k-NN works, 
+let's now look into R in the class package to automate it. 
+Let's jump in. 
+Here we go.
+
+So here is the class package. 
+And the function is called knn. 
+Very appropriately so. 
+And if you just type in after you've loaded the class package, 
+question mark knn into the console, 
+you'll get this.
+
+Or if you do a web search. 
+You can always search for this formatted output of any function in R. 
+So right here, 
+we've got the usage. 
+We're going to have a training set.
+
+We're going to have a test set. 
+And we're going to have this cl, 
+which is the responses. 
+And then we're going to be able to specify k. 
+And then we've got some other options I'll get into as we go.
+
+But these are the four really important ones. 
+So the training set, 
+those are the ones that we had the labels for. 
+But we're only going to give it the explanatory variables in this, 
+in the training part. 
+And then the test is the explanatory variables that we need the responses for.
+
+And then cl are the responses of that training set. 
+So we're going to take the training set and just give it the explanatory variables, 
+and then take the test set, 
+put it here, 
+and then take those response variables from the training set, 
+and put them in the cl. 
+And then we're going to specify k to be 1, 
+3, 
+5, 
+whatever we have. 
+Great.
+
+So let's check it out. 
+So we had this one. 
+And we said, 
+hey, 
+let's let k equal 3. 
+We decided that, 
+OK, 
+based on the three closest neighbors, 
+two out of three of them were denied, 
+or did not qualify.
+
+And that was it. 
+So we went with that one. 
+Two to one vote. 
+So let's jump on over to this guy right here.
+
+And what we've got is--
+
+what I've got for you is, 
+all these packages that you might as well just go ahead and install all these packages now, 
+the class package, 
+the caret package we'll need here. 
+This E1071, 
+we'll need that eventually. 
+And of course, 
+we've got--
+
+and then I've done the libraries here as well. 
+So I've already loaded the packages. 
+We'll go ahead and load the libraries, 
+just to get them in there. 
+And I've already got for us, 
+if you're following along, 
+which I hope you are with the R package, 
+I mean, 
+with the R Markdown file for this unit--
+
+this is the data that we saw in the slides. 
+So I'm going to go ahead and run that. 
+And then I'm going to visualize it. 
+And that should look pretty familiar.
+
+So we've already got the ggplot going on over here. 
+It would really help if I had the title here. 
+But again, 
+this is just for demonstration purposes. 
+But remember, 
+labels are super important.
+
+So here we go. 
+So that is our data set. 
+And we've got our test set. 
+So our test set here is our person who has a $92,000 income, 
+and a credit rating of 694.
+
+So I'm going to go ahead and put that guy in there. 
+And now we've got our very simple knn call. 
+So that knn call here is the train. 
+Let me go ahead and print out the training set.
+
+So we've got dfTrain. 
+And that's going to be income, 
+credit rating, 
+qualify. 
+So that's the first column, 
+the second column, 
+the third column. 
+There's a couple ways you could do this.
+
+I like to just reference them by number if I know what those are. 
+So that's knn dfTrain comma--
+
+that says give me all the rows, 
+and then give me columns one and two. 
+Columns one and two are income and credit rating, 
+because that's what goes in that first argument, 
+or the explanatory variables. 
+Then I've got dfTest, 
+which is only explanatory variables. 
+We can print that guy out.
+
+And so we've got income and credit rating. 
+And then finally, 
+we have dfTrain, 
+qualify, 
+dfTrain, 
+dollar sign qualify, 
+which are the responses that go with these income levels. 
+That's these guys right here. 
+So after I've got that in there, 
+I'm going to specify k equals 3.
+
+And then I've got prob equals true. 
+And the default is prob equals false. 
+But what this is going to tell us is, 
+was it 100%? Whichever we go, 
+it's going to tell us what percent voted that way.
+
+So if it's--
+
+well, 
+let's go ahead and run it. 
+But it's going to say, 
+if everybody around me was the same way, 
+it'll say, 
+100% yes, 
+or 100% no. 
+66%, 
+or otherwise. 
+So let's go ahead and run that guy.
+
+And notice that it says, 
+OK. 
+The vote is no based on knn [INAUDIBLE].. 
+The three closest neighbors, 
+there were two of them. 
+Remember, 
+it was these two.
+
+This guy and this guy were both no's. 
+And then it had one yes in there. 
+But that wasn't enough to sway it. 
+So no with 66%.
+
+So that's what the prob equals true does. 
+And it's pretty straightforward. 
+It voted no. 
+So let's go on and flip back over here.
+
+And that's exactly what we saw. 
+We had these two versus that one. 
+So again, 
+66% voted no. 
+So that's where we went.
+
+Let's look at k equals 5 now. 
+So we expanded the radius of the circle. 
+And actually, 
+now, 
+we're going to make the different decision, 
+because just barely in there, 
+these two are pretty close. 
+But that's a yes, 
+yes, 
+yes, 
+no, 
+no.
+
+So let's see if we get 60% for a yes here. 
+So we flip back over there. 
+And I'm going to, 
+this time, 
+just adapt this. 
+I'm not going to look for new code.
+
+I've just got k equals 5. 
+And now it's going to look at the closest five neighbors. 
+And I plop that guy in there. 
+And sure enough, 
+it switched its mind, 
+it says, 
+hey, 
+now, 
+if you're going to look at the five closest, 
+I'm going to vote yes with 60%.
+
+Very, 
+very straightforward. 
+But very, 
+very useful. 
+Nothing says that very useful models have to be complicated. 
+So that's a quick introduction into R in the class package for using k-NN.
+
+I'll see you next time. 
+Great job.
+

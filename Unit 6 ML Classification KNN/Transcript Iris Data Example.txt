@@ -1,0 +1,121 @@
+Iris Data Example
+
+Hi. 
+Let's look at another example now of classifying the Iris data. 
+So we're going to look at Versicolor versus Virginica. 
+And in fact, 
+what I'll do is kind of make this like a you try it.
+
+So we're going to look at the data here. 
+So this is the data set we've looked at lots of times before. 
+We have Setosa, 
+Virginica and Versicolor of irises, 
+these species of irises. 
+And we're looking at sepal length versus sepal width.
+
+So what I'd like you to do, 
+if you want to pause it, 
+and then I'll show you the answer here, 
+is to try to use knn with k equals 5 to first just look at--
+
+we only have a binary classifier right now. 
+And we have three levels here. 
+So I'd like you to first do is filter out the Setosas. 
+So we only have the Versicolor and Virginica.
+
+And then use a knn classifier with k equals 5 to classify a point with--
+
+sepal length equals 6.2, 
+and sepal width equals 2.8. 
+So after you filter it out, 
+it'll look something like this. 
+And then see what knn with k equals 5.
+
+Let's do knn equals 5 and knn equals 15. 
+So we'll do two of them. 
+knn equals 5. 
+And knn equals 15, 
+with this sepal length, 
+6.2,
+
+and this sepal width, 
+2.8. 
+So I'm going to pause here for just a second. 
+Then we're going to come back and do the answer. 
+Let's go for it.
+
+So all right. 
+If you took it away, 
+or you came back, 
+or you just kept going, 
+then we're just going to keep going too. 
+So this is--
+
+let's look at the answer. 
+Let's look at a solution. 
+So here is some code that we're going to look at. 
+First, 
+we want to filter out.
+
+We want to filter the species Versicolor and species Virginica, 
+which is going to filter out the Setosas. 
+And then we'll say a data frame of sepal length equals 6.2. 
+This is going to be our test data. 
+And a sepal width of 2.8.
+
+And then we'll use this knn classifier. 
+Remember, 
+we're only going to pass it the explanatory variables. 
+And then we're going to pass it only the explanatory variables of the test set that were not used, 
+that we don't have in here. 
+So the coordinates of that red dot.
+
+And then we're going to give it the responses separately. 
+So that's iris VersVirg species. 
+Species is the response here. 
+We can see that over here in the legend.
+
+And then we'll say, 
+k equals 5. 
+And I always like to see those probabilities to have some sort of confidence in what I'm looking at. 
+So we're going to head on over here. 
+And so I will just run that filtering code.
+
+And we'll look at the data frame. 
+And so we've got--
+
+we can confirm here, 
+before we run it, 
+that the data frame--
+
+oh, 
+that data frame is the 6.2 and the 2.8. 
+And then we'll just run our knn classifier. 
+So you can verify that that's what we looked at before.
+
+And I'll run it and I get for Versicolor, 
+that 60%, 
+or that 3 out of 5--
+
+so it was a close call there. 
+But favored Versicolor. 
+So I'm going to classify it as Versicolor. 
+And then we can bring in more because as we saw, 
+there were a lot of points around a lot of points on that iris data.
+
+So we brought in 15 this time. 
+So if we bring in 15, 
+we'll look at that. 
+And we get another close call, 
+because they were pretty randomly scattered, 
+right where that red dot was. 
+But it favors Virginica, 
+52%, 
+almost 53%.
+
+So that's, 
+again, 
+how we can use a knn classifier with class package on the iris data. 
+So great job. 
+I'll see you next time.
+

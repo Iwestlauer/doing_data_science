@@ -1,0 +1,101 @@
+Standardization 2
+
+Hi, 
+now let's look at an example where standardization will make a difference in knn, 
+and we'll do that using R. 
+So let's jump right in. 
+Here we go. 
+We are going to start with a data frame.
+
+And here is that data frame. 
+And just like that. 
+And I'll print it out, 
+so we can all see it. 
+That's called dfTrain.
+
+And there is a data frame. 
+And we're going to try to classify this, 
+qualify a variable, 
+using knn. 
+And we're going to evaluate how well that is with internal cross-validation, 
+leave-one-out cross-validation. 
+So what we have here, 
+though, 
+is notice that we've got some very unstandardized data.
+
+This is in the thousands, 
+and our credit rating is in the hundreds, 
+like we've seen before, 
+like we just saw in the lightboard. 
+So what we're going to have is I'm going to do my classifications, 
+using internal CV. 
+And then I will do my confusionMatrix, 
+like so. 
+And we see that our accuracy in bad is 63%, 
+about 0.6364.
+
+But let's say that we should standardize these things. 
+I'm not saying it's always going to make a difference or not, 
+but it just makes sense that we should standardize it. 
+As we said earlier, 
+a move of $1 isn't the same as the move as one credit score or, 
+to really highlight it, 
+the move of a hundred dollars. 
+When you're salary is in the thousands, 
+an increase of a hundred dollars isn't nearly as big and meaningful as, 
+or as big a jump, 
+relatively speaking, 
+as a hundred unit jump in your credit score.
+
+So we're going to standardize here. 
+And the way we're going to do that is by using a function called scale. 
+So in scale, 
+you just give it the variable that you want to scale. 
+And it will center it.
+
+So it'll subtract its mean. 
+And it will divide by the standard deviation, 
+essentially finding a z-score. 
+So it will subtract the mean, 
+divide by the standard deviation. 
+That's how we're scaling this.
+
+So I'm going to scale dfTrain$income. 
+And I'm also going to scale the credit rating like so. 
+And so I'm creating a whole new data frame with scaled explanatory variables. 
+But I'll keep Qualify because it's a categorical variable.
+
+So I'll go ahead and do that. 
+And I'll look at dfZTrain, 
+Z for z-score. 
+And I'll do that. 
+And now I've got these standardized.
+
+The same information's in there. 
+It's just been standardized, 
+so that distances--
+
+when I'm using knn, 
+it uses Euclidean distance. 
+And those distances now are more meaningful and, 
+relatively speaking, 
+they're the same, 
+relatively. 
+So let's go ahead and look at the classifications. 
+So I'll let it do the classifications, 
+and I'll do the confusionMatrix.
+
+And at this time, 
+for this one, 
+we see that the accuracy now is much better, 
+81.82%, 
+or 0.8182. 
+Again, 
+not saying it's always going to make a difference, 
+but it is the right thing to do to standardize this once again to make the distances comparable, 
+when we're using Euclidean distance. 
+So that is a quick look at standardization.
+
+I'll see you next time. 
+Great work.
+

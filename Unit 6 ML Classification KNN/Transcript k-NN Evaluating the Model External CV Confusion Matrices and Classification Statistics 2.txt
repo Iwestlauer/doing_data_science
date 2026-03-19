@@ -1,0 +1,36 @@
+Solo Lecture: k-NN | Evaluating the Model: External Cross-Validation, Confusion Matrices, and Classification Statistics 2
+
+Hi. Let's now talk about other classification statistics. We're going to hop on over to R Studio first to recall this confusion matrix. So remember that we were going to make a table, and we've got classifications.
+
+And then got the true labels here. So let's look at that confusion matrix, and we'll run it. And we'll make this a little higher. And there we have it.
+
+We get the confusion matrix--
+
+so that's 10, 6 and 7 and 2. And we've got some other statistics here. So let's hop on back over and look at. We've got sensitivity, specificity.
+
+We've got this positive predictive value, negative predictive value. Let's go and look at what a couple of these are, and you can investigate the rest. But I'll flip on over. And so here we have it.
+
+We have our classification statistics. I've got them all labeled out here and how they were calculated. Really, let's just focus on two. We already know the accuracy and misclassification.
+
+Let's focus on sensitivity and specificity. So sensitivity here is the number of correctly identified successes divided by the true number of successes. So that puts us in this column. So we're only looking--
+
+we're conditional on the true successes. How well did we classify things that truly were--
+
+irises that truly were versicolor? So in our sample here, there were 15 versicolors. And in those 15 versicolors, we classified 10 of them correctly. So that leaves the sensitivity at 10 divided by 15, which is 66%.
+
+And that's how we get sensitivity. It's of the ones that truly were successes, we'll call them here, how many were classified as successes. And so if there's a sensitivity, there must be what's called a specificity. And specificity is simply saying, hey, of the number of true failures, how many were classified correctly?
+
+So number of correctly classified failures divided by the true number of failures. And so that here, we're in this second column, which is--
+
+there were 10 failures, but don't tell Virginica that. That was truly Virginica. How many were classified as Virginica? So that is six.
+
+So there was 10 total, and six were classified correctly. So 6 divided by 10 was 60%. It's a pretty easy statistic once you know really what it's saying. False positives, false negatives--
+
+you can check those out. Those are used widely in a lot of different industries, including the health care industry. But the last thing I wanted to show you here is that that is exactly what this confusion matrix call does from the care package. So we can verify here that sensitivity was--
+
+for this particular one, we've got 10, 6 and 5 and 4. And that accuracy was 64%. And the sensitivity here is 0.66, and the specificity here was 0.6.
+
+And you can verify the others, and I highly recommend that you do, just so you can read other people's papers. Or maybe you want to use them on your own. But that is just a quick look at other classification statistics. Great job.
+
+I'll see you around.
+

@@ -1,0 +1,68 @@
+Risk of Defaulting
+
+Hi. Now let's do an example putting it all together, the overall theme of this example would be default risk, or defaulting the risk of defaulting. So here is our data set. Clearly, it has a ton of observations in it.
+
+And we can see that we've got the legend over here has no default in red, and default in blue. So what we're going to do is first get the data set. So it's called creditdefault.csv. Let's go ahead and flip on over here.
+
+So again, read in that data, creditdefault.csv. I've already read it in. But just to be complete, I'll read it in again. So I like to do the file.choose
+
+unless you have the path that's in there. Just to show it, I'll do this. And then come on over, and I've got it right there. Credit default.
+
+So now we've loaded it up. It's all reset. And we want to--
+
+so let's go ahead and check it out. So we've got credit. And we look at it, and we see this last column here is default payment next month. And that is our response.
+
+And notice that our responses are 0, 1. Are 0, 1. So we'd like to make that a little more readable. So that's the first thing we're going to do is work with our factors.
+
+We said we were putting it all together. So here, we're going to say, credit default payment next month factor, and then we're going to make that response--
+
+it's labels. It's classification, 0, 1. But it's not the number 0 and 1. It's just, you can think of those as names.
+
+So we're going to factor that credit default payment next month. And we're going to change the labels to no default and default. And we'll see right there that that will help us out. And the fact that now, I'll look at credit.
+
+And it's changed them to default and no default. So no default was a 0. And default was a 1. And now they're better labeled.
+
+So I'll go ahead and look at summary credit, just to show that. And we've got, right here, no default and default. We can get an idea of the numbers of both. And we're set.
+
+So plot the data. So we're going to now plot this. We've already seen the plot. But there's lots of data.
+
+So it's got to take a little bit of time to think about it. But it'll readjust this in just a second. But there's our data. Of course, we always want to plot the data.
+
+We can kind of see here that there is some clustering that maybe age kind of is a good predictor of this idea of default and no default. And maybe limit balance is too. We'll see how well a knn classifier works. So what are we going to do next?
+
+We are going to look to standardize, because we've learned that standardization can really make a big difference. So what I'm going to do here is, I'm just going to use something called scale. So scale is a little variable. I put it up here, what it's actually doing in the comment.
+
+It's taking, it's centering it, subtracting the mean, and then dividing by the standard deviation. But you can do this with scale also. So when you go through the markdown, or hopefully you're going through it now, go ahead and run both of those. But I'll go ahead and just add these two variables to the end.
+
+And that's going to scale the limit and the age. So that they have the same scale. So now they're essentially z-scores. They're now the number of standard deviations away from its mean.
+
+So great. So we've done that. And so now, we are going to create the training and test sets. So the training--
+
+same kind of strategy we've used before. Sample from sequence 1 to 30,000. So there's 30,000 different observations here. And go by 1.
+
+So it's going to go, 1, 2, 3, 4, all the way to 30,000. And 0.8. We're doing an 80-20 test train set split. So that's 0.8
+
+times 30,000 will be how many we select. Same idea that we used before. And we will do that. And that's for the external cross-validation.
+
+External cross-validation is when we set a training set, and we set a test set, and they never cross over. So that's external. The test that is external from the training set. So I'm going to go ahead and do that with the normal data.
+
+With the unstandardized data. And we get a 0.6888 accuracy rating. And if I remember correctly, we don't get a huge gain here from standardizing.
+
+But we saw earlier that it can make a big difference. And it certainly makes sense intuitively why we would do that. It's kind of a safer way to go. So I'll go ahead and do it with the standardize.
+
+Remember that was 0.6888. And this one right here was about 0.6942. So not a tremendous gain. But again, we're just--
+
+we're more solidly grounded in theory, knowing that both of them are working on the same distance. Since we're using Euclidean distance as the knn, determining what k are closest, it makes sense that they would contribute equally. So, but let's look at an internal CV. Shouldn't make that big a difference, just because we have 30,000 observations.
+
+It's not really a small data set, but the idea of internal CV is appealing, using more of the data to assess it. So we've done that. And we run our confusion matrix. And we see we get about 0.6908
+
+for the unstandardized. And we run the standardize again--
+
+we're just assessing models. If we wanted to really show this, or if we wanted to use this, we could use different k's. Right, so, we'd say, well, let's look at this one was k equals 5. Let's look at k equals 6.
+
+Let's look k equals 10. And we can compare them based on the cross-validation. So this one turned out to be about 0.6939, a little bit better than the last one.
+
+And again, just a safer thing to do to standardize that when you're using distance as your decision-maker. So that is it. That's a full example, looking at default risk, using a knn classifier, evaluating our model based on cross-validation. And that's it.
+
+So great job. I'll see you next time.
+

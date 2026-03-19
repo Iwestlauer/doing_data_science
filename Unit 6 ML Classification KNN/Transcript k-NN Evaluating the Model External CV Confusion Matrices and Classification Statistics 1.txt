@@ -1,0 +1,282 @@
+Solo Lecture: k-NN | Evaluating the Model: External Cross-Validation, Confusion Matrices, and Classification Statistics 1
+
+Hi, now we're going to cover Evaluating the Model. And we're going to do this with a very important method that's widely used, called cross validation. Now, cross validation--
+
+the strategy and philosophy behind it is really pretty intuitive. The idea here is that we'll have a training set and a test set. And oftentimes, we only have one set. So we're going to divide this one data set that we have into what's called, again, a training set and a test set.
+
+And we'll develop the parameters. Or in this case, we will train our kNN model with the labels and the explanatory variables on the training set. And then we will evaluate that--
+
+see how well that model is performing based on a test set that was not used to build the model. So in a kNN setting, all the dots that we use that we have kNN equals 3, the three closest, kNN equals 5, the five closest--
+
+those will be from the training set. And the test set we can evaluate to see how well we're recovering the labels that we know on the test set, given that training set. So that's the big idea of cross validation. It's to have a training set that we train the model on.
+
+And then we see how well the model's performing on this hold out set, this test set, that was not used to build the model. So graphically, we have here--
+
+we'll have the complete data set. And then we end up putting 75% or a percent of some random--
+
+sometimes it's 80-20. Sometimes it's 75-25--
+
+it depends on the size of your data set. Sometimes it's 50-50. But we'll put some of it into the training set. It's usually the bigger portion into the training set.
+
+And then in this case, 25% would go over to the test set. So let's see what that means for us. So we've got the full data set here. That's all of the Virginica, Versicolor, and the Setosas.
+
+And what we'll do is have a training set. So we'll have this training set right here. And the we'll send. And this is randomly chosen.
+
+So we're going to show one method to do that--
+
+which we're going to randomly select rows from here and assign them to either the training set or to the test set. And one row can't be in either one. These are mutually exclusive and, again, randomly assigned. So--
+
+great. So what we're going to do is go ahead and run some code. So let's head on over to our studio here. And the first thing I'm going to recommend that you do is set the seed, so we can all stay together.
+
+So we'll have set.seed of 6. That's the seed that I'm using here. And let's just step through this code.
+
+So we've got a split percentage. So the split percentage here is 0.75. Again, you could choose whatever you want. Let's stick together, if you like.
+
+Hopefully, you're following along with me. I think that's just the best way to do it. You can really learn efficiently again--
+
+have a lot of fun. This code is in that Markdown file for this unit. So the split percentage here is 0.75. So how are we going to do this?
+
+The first thing we're going to do is filter the data set. But I want to show you a couple of things on this. I'm going to go ahead. We've seen this a couple of times.
+
+So set seed--
+
+I'm going to split the percentage of 0.75. And here, I'm going to filter just the species Versicolor and Virginica. Now, we run into a problem, though. Yes--
+
+we only have the Versicolors and the Virginicas. But if we look under the hood, we've got a little sloppy here. It's allowed us to be sloppy, in that we still have Species has a level. That doesn't have any of them.
+
+But it still has a level reserved for Setosa. So just to be complete here, I'm going to use a special function called Drop Levels. You give it the variable that you'd like to drop the level of. And you can say, exclude whatever level you want.
+
+And so after I have excluded this level of Setosa, now I have a pretty clean data set where Species is truly Versicolor and Virginica. So that was the first step. But now, you're going to see this code a lot, because we're going to do cross validation for a lot of our models, if not all of our models. So what we're going to do here is--
+
+how to assign the rows to the training set or to the test set. And there's lots of ways to do this. There's other functions do it. But for whatever reason, I just code it myself.
+
+So the training indices--
+
+we're going to use this Sample function. Again, the Sample function says, you give it the universe of things you want to sample from. So I want to sample from the numbers 1, 2, 3, 4, 5--
+
+all the way up to the dimension of Iris Verge. I'm just going to run this real quick so you can see this. We'll be using this throughout the course, as I mentioned. So we are going to do this.
+
+So if I do the dimension, it's got 100 rows and five columns. The first one is the rows. The second one is the columns. And again, we're going to see this a ton.
+
+If I say, hey, just give me the first number, then that's going to say, oh, OK. That's 100. And that's what I want to do. Because what I'm going to do is first randomly sample the indices.
+
+And then I'm going to go back into that data set and say, OK, grab me this one and that one and this one and that one. So here--
+
+I'm going to say, OK. So there's 1 to 100 rows here. I'm going to say, this is from 1 to 100. And then I'm going around the split percentage times that dimension.
+
+Well, that dimension is 100. So this one's pretty easy to see. No--
+
+I can't see it there. If I do that, I'm going to round, just in case it's a decimal number. Because it's saying, how many of these do you want? And remember, for the sample function, the default is to not replace them.
+
+So this is saying 0.75 times 100 is 75. So I want to pull 75 times--
+
+75%--
+
+from the numbers 1 to 100. And if I do that--
+
+and if you've set the seed, you'll get the same exact numbers I do, so we can stay together. But if you do that, I'll show you--
+
+most of this is just getting the philosophy of what I'm doing to the strategy. So I'm going to say, train indices. That was the ones that it randomly selected. I want observation 53, 10, 45.
+
+And I want to end with 6, 84, and 85. Those are the 75 that I want to get. And the other ones. I'm going to put into the test set.
+
+So great--
+
+so how do we do it? So I just say, trained. It's very easy. And you give it the trained indices.
+
+That's all of these indices. It simply says, give me all those rows. And then there's comma nothing or just comma bracket. That's saying, give me all the columns.
+
+So that's the sepal length and the sepal width, and petal length and petal width, and so on and so forth. So I'm going to go ahead and do that. And so that gives me the trained data set. So this gives me Train.
+
+So that's 75 values that were randomly selected from the full data set. And then Test--
+
+Test is simply the rest of them. So all you gotta do to do that is put a minus sign behind it. And you'll have trained indices. So just like that, I'm going to go ahead and run that guy.
+
+And that should be--
+
+I'll do a dim test on that. We won't even have to look at it. And I really actually--
+
+kind of a sidebar--
+
+recommend, whenever you have time or it's just convenient--
+
+or even if it's not convenient, it could save you a lot of time in the future--
+
+like that one. Like, I was pretty sure that Test had the other 25. But you never know when it doesn't. And then you go run some code.
+
+And you give it Test, thinking it should work. And then it chokes. And it takes you a while to figure out that, oh, really, Test never got those 25. So you go through looking at it all sorts of complicated things--
+
+could this be the problem?--
+
+could that be the problem?--
+
+and really, it was just some little comma or something that stopped Test from getting what you thought it had. But it looks like, here, Test has 25 and 5. That's exactly what I expected to have. So we've done it.
+
+We've divided our 100 row data set--
+
+our data frame here--
+
+into a training set of 75 and a test set of 25. Great--
+
+so all that's left to do is to run kNN on it. You can see this here. I'm going to say kNN. And I'm going to assign it to this thing called Classifications, because I'm going to build what's called a Confusion Matrix.
+
+I'm going to introduce a confusion matrix to you as well, to evaluate these cross validations. So what we're going to do here is say, classification equals kNN. And we give it the Train. These are just 1 and 2.
+
+That's just the explanatory variables. And then I'm going to give it the Test. So that's the saying, that's all I have is explanatory variables. And then I'm going to give it the Train.
+
+I actually have the labels for these two, right? But we're not going to look at the rest of those until we look at this confusion matrix here in a second. So to do kNN, I'm going to give it the explanatory variables with the training set, the explanatory variables of the test set, and then the responses of the training set. And that'll get everything it needs to do to go look at those nearest neighbors.
+
+I'm going to say, prob equals true--
+
+even though I'm really not going to look at it right now--
+
+and k equals 3. So we're going to let k equal 3 this time. I'm going to go ahead and run that. And just like that, it ran that.
+
+It ran those classifications. So if we looked in here in Classifications, it'd probably give us a whole bunch of stuff. Let's check it out. Good--
+
+yeah. I had 25. So I've got 25 probabilities. It's got 25 assignments. And our question is--
+
+hey, was it really Virginica? Was this one right here really Virginica? And was that one really Virginica? And was this one really Versicolor?
+
+Because now we can evaluate our model. Because unlike when we apply this in the real world when we're really trying to classify and guess something that we don't know, here, we can evaluate the model, because we actually have these labels. We've held these out just for the purpose so we can test this model later. So that's what we want to do right now.
+
+So if you use a table classification--
+
+so a table is another function. And if we say, Classification and Test Species--
+
+so this is the classification. This is all of these guys. And then I give it Test Species. These are the actual labels, right?
+
+This is the truth. This is Test Species. Test Species is what actually happens. So if I put it in Test Species, then I see here Versicolor.
+
+And so that got that one wrong. So our kNN classifier with k equals 3 got that first one wrong. It got the second one wrong. But it got the third one right.
+
+It takes a while for me to go through 25. Imagine if I had to go through 25 million. So what I'll do is use the table. So let's see what that puts out.
+
+So we do that. And that gives us the classification. And these are the classifications. And these are the truths.
+
+So it says, OK, how many Versicolors were classified as Versicolors? So how many Versicolors were classified as Versicolor? 10--
+
+10 were correctly classified. And Virginica--
+
+seven were incorrectly classified Versicolor. And so what do we have here? 2--
+
+2 were incorrectly classified Virginica that we're Versicolor. And finally, 6 here--
+
+6 were classified Virginica when they were really Virginica. So we've got 16 that were correctly classified. And we've got nine that were not correctly classified. So let's head on back over here.
+
+And when we do that, we will see that here is what we call a Confusion Matrix. And so we have the Truth. So this is True Species here. And this is what it was classified as.
+
+And if you look at different Confusion Matrices, these might be switched. It's like if you're looking at the standard deviation of the variance. You've got to ask how it's parameterized. So if we look at True Species--
+
+I'm telling you right now that, for this one, we're looking at true species on the top and the classifications on the bottom. That's what we just looked at. So if we want to have a couple of evaluation statistics, we can look at what's called Accuracy--
+
+very, very, very intuitive. It's just, how many did we classify accurate divided by the total. So again, we had 16 divided by 25. So our accuracy was 64%--
+
+pretty straightforward. Misclassification is just 1 minus that or simply 9 divided by 25. That's the number that we misclassified--
+
+so 0.36%. So let's do a quick You Try It. And I'll bring it back in there. But try this now for k equals 5.
+
+So we just did k equals 3. Try it for k equals 5. Yeah--
+
+perfect. Get the accuracy and the misclassification. And maybe try to make a confusion matrix. And go ahead and pause the video.
+
+But I'm going to keep going. So let's go ahead and flip on back. So I'm going to come down here to k equals 5. You might see this Confusion Matrix call here.
+
+I'm going to come back to that here in just a second. So what you more than likely did was just take that code that we just did and change that to k equals 5 now. So I have k equals 5. And if I do that and I just run the table--
+
+I'll just run it all at once here--
+
+we see that we get nine correctly classified Versicolor, nine correctly classified Virginica, and seven that were misclassified here. So if you took that over here and we looked at this code with k equal 5, then--
+
+and you might have gotten something different if your set.seed wasn't equal to 6. But if so, you can just maybe follow along this one and verify on yours or bring it to Live Session and ask your question there. So we've got 9 and 9.
+
+So that was 18. So 18 divided by 25 was 0.72. That was our accuracy. And 4 and 3 and 7--
+
+so 7 divided by 25 was 28% or just 1 minus 0.72. And that was our misclassification. We're going to cover other classification statistics here. These are, obviously, the two very basic ones--
+
+but are often used. So let me show you one more thing. So going back to this k equals 3--
+
+remember that this confusion matrix is from the Caret package. And so if I highlight that, I'm giving it a table. If I give it the whole table--
+
+Table, Classifications, Test Species--
+
+then if I run it, it gives me a whole bunch of statistics all at once. So this one here is--
+
+where are you?--
+
+so right there. So there was our accuracy. So our accuracy will give us our table. And then it gives us accuracy of 72%.
+
+And it gives us a whole ton of other classification statistics--
+
+sensitivity, specificity. We'll cover those here in just a second. So now we have one more thing. And that thing is, now that we've looked at k equals 3 and we've looked at k equals 5--
+
+the confusion matrices for those--
+
+we might want to ask ourselves, hey, what is the best k in a cross validation sense? So we can evaluate that. So we'll just flip it back over to our studio. What we're going to look at here is a loop for many k and one training test partition.
+
+So we're just going to look at one partition of the whole set. So we're going to have our Train and our Test. And that's never going to change here. So I'll let you run through this code.
+
+Again, ask any questions about it in Live Session. It'll be good to review the logic behind it. But what this is going to do, as I run it here, is for I in 1 to 30--
+
+so 1 to 30 is for k. So I'm going to look at k equals 1, k equals 2, k equals 3. I'm going to take the same training and test set and women evaluate our accuracy. So in that Confusion Matrix call, there is something called Accuracy.
+
+And I'm just looking at that Accuracy. So again, I'll let you reverse engineer that and ask a lot of questions. And it did it super fast. So what this was saying was, here's accuracy--
+
+higher accuracy the better. For this particular run, it said that k equals 5 gave us the best accuracy and then it quickly came down. But that could be very dependent on the training and test set that randomly was chosen. And this one was for seed.6.
+
+So if you want to try these out a little bit, you can try them out. Actually--
+
+here. Maybe we can do this real quick. So I can come here. And just, I'll get rid of this seed.
+
+And we can just run all of this. But then the training and the test set that are involved will change each time. And so I'll just run this guy. And then we'll plot it.
+
+And that's what I get the second time. So you can see that it was heavily dependent on that training and test set. Because I run it again, and I get something different. This one says k equals 15.
+
+So we may not want to do it for just one training-test set. If only we could average this accuracy over a whole bunch of different k and a whole bunch of training and test sets! And so that's what we want to look at here. So this loop--
+
+and again, I'll let you look at it--
+
+it does it for many k and the average of many training and test partitions. So I've got two loops here. So iterations is the number of times I want to get difference in training and test sets. And for each training and test set split, I'm going to go 1 to the number of ks.
+
+And then at the end, I'm going to take that iterations--
+
+I'll have iteration number of accuracies and for each k. So if iteration is 10, I'll have 10 accuracies 1, 10 accuracies for k equals 2, 10 accuracies for k equals 30. I'll average those 10. And so that's right here.
+
+I'll take the mean of those master accuracies. And again, step through that code and you'll see it. And we can cover it in Live Session if anybody has a question. But that's what we're going to do.
+
+So we're going to average this over many. So I'm going to take iterations--
+
+we'll do 500 here. So for each k, I'm going to do 500 train-test splits. I'm going to generate 500 accuracies. And then I'm going to see if I can't get a smoother, more consistent plot here.
+
+So let's go for it. So I run it. It's thinking about it. It's going through 500 times, so it takes a little bit longer.
+
+But we'll run it here twice and see if we can't get a more consistent idea of--
+
+we're tuning our hyper-parameters here. So the hyper-parameter here is k. And we are simply trying to see if we can get some idea of what the best k is, in this sense. So it is still running.
+
+So maybe we'll choose something with iteration a little bit less than 500. But we will wait for it and potentially--
+
+there we have it. So this one--
+
+I'm going to go ahead and start it running again, so we can see if there's any consistency. But this one right here has k equals 5. It looks like k equals 10 has it too. And then it kind of falls off.
+
+Again, this is the average of 500 accuracies for each of those ks. So that's a lot of calculations, which is what it's doing right now. And we'll see if we go from one to the next, if it doesn't jump around as much. And if that's the case, then we'll say, yeah, it looks like maybe, for this particular data set, we should set k equal--
+
+I would guess here--
+
+5. Looks like 10 is not too bad. But let's see what the next one is. And then we will conclude.
+
+Just like that, it looks to be much, much more consistent. It's not jumping up all over the place. We've got the average of those 500. Again, this one's recommending 5, maybe 6.
+
+And that's what I would choose--
+
+k--
+
+when I really ran this in the real world, for whatever reason I want to develop that model. So thanks for sticking with me there. Great job. We covered a lot.
+
+We covered cross validation--
+
+huge topic--
+
+cross validation in kNN and the Confusion Matrix. So great job. I'll see you next time.
+

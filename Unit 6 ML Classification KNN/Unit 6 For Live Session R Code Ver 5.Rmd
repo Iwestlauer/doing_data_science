@@ -1,0 +1,238 @@
+---
+title: "Unit 6 LIve Session R Code"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+$ Unit 6 Question 1
+Loading, Splitting in Training / Test, Classifying, Evaulating the Model
+```{r}
+library(class)
+library(caret)
+library(tidyverse)
+
+titanicDataDF = read.csv("https://raw.githubusercontent.com/BivinSadler/MSDS_6306_Doing-Data-Science/Master/Unit%206/titanic_train.csv",header = TRUE)
+
+head(titanicDataDF)
+
+titanicDataDF$SurvivedF = factor(titanicDataDF$Survived, labels = c("Died", "Survived"))
+
+titanicDataDF$SurvivedF = relevel(titanicDataDF$SurvivedF, ref = "Died")
+
+head(titanicDataDF)
+set.seed(1)
+trainIndex = sample(seq(1,891,1),600)
+trainTitanic = titanicDataDF[trainIndex,]
+testTitanic = titanicDataDF[-trainIndex,]
+
+dim(trainTitanic)
+dim(testTitanic)
+
+# We will assume that the ages are missing completely at random.
+# Beware deleting missing values blindly is VERY DANGEROUS
+
+trainTitanic= na.omit(trainTitanic)
+testTitanic = na.omit(testTitanic)
+
+#Plot
+trainTitanic %>% ggplot(aes(x = Pclass, y = Age, col = SurvivedF)) + geom_point() + ggtitle("Survival v. Age and Passenger Class") + xlab("Passenger Class") + geom_jitter()
+
+
+
+dim(trainTitanic)
+dim(testTitanic)
+
+classifications = knn(train = trainTitanic[,c("Pclass","Age")], test = testTitanic[,c(3,6)], cl = trainTitanic$SurvivedF, prob = TRUE, k = 5)
+
+table(classifications,testTitanic$SurvivedF)
+CM = confusionMatrix(table(classifications,testTitanic$SurvivedF))
+CM
+
+CM = confusionMatrix(table(classifications,testTitanic$SurvivedF),mode = "everything") #includes the F1 score
+CM
+```
+
+## Internal LOOCV
+```{r}
+# Using just the training data
+classifications = knn.cv(trainTitanic[,c("Age","Pclass")], trainTitanic$SurvivedF,k = 5)
+
+CM = confusionMatrix(table(classifications,trainTitanic$SurvivedF[(!is.na(trainTitanic$Age) & !is.na(trainTitanic$Pclass))]),mode = "everything")
+CM
+
+# Using all the data
+titanicDataDF_NO_NA = na.omit(titanicDataDF)
+
+classifications = knn.cv(titanicDataDF_NO_NA[,c("Age","Pclass")], titanicDataDF_NO_NA$SurvivedF,k = 5)
+
+CM = confusionMatrix(table(classifications,titanicDataDF_NO_NA$SurvivedF),mode = "everything")
+CM
+
+knn.cv(trainTitanic[,c("Age","Pclass")],trainTitanic$SurvivedF,k = 5)
+
+
+
+# LOOCV By Hand ... very slightly different... probably a tie in distance
+classification_Holder = numeric()
+  
+for(i in 1:dim(titanicDataDF_NO_NA)[1])
+{
+  classification = knn(titanicDataDF_NO_NA[-i,c("Age","Pclass")],test = titanicDataDF_NO_NA[i,c("Age","Pclass")], cl = titanicDataDF_NO_NA$SurvivedF[-i],k = 5)
+
+  classification_Holder[i] = classification
+}
+
+LOOCV_vector <- factor(classification_Holder, levels = c(1,2), labels = c("Survived","Died"))
+
+
+CM = confusionMatrix(table(LOOCV_vector,titanicDataDF_NO_NA$SurvivedF),mode = "everything")
+CM
+
+
+```
+
+
+
+Predicting Survival for a 30 year old in 1st,2nd,3rd class
+```{r}
+Thirty1= data.frame(Age = 30, Pclass = 1)
+Thirty2= data.frame(Age = 30, Pclass = 2)
+Thirty3= data.frame(Age = 30, Pclass = 3)
+
+knn(titanicDataDF[(!is.na(titanicDataDF$Age) & !is.na(titanicDataDF$Pclass)),c(3,6)],Thirty1,titanicDataDF$Survived[(!is.na(titanicDataDF$Age) & !is.na(titanicDataDF$Pclass))], prob = TRUE, k = 5)
+
+knn(titanicDataDF[(!is.na(titanicDataDF$Age) & !is.na(titanicDataDF$Pclass)),c(3,6)],Thirty2,titanicDataDF$Survived[(!is.na(titanicDataDF$Age) & !is.na(titanicDataDF$Pclass))], prob = TRUE, k = 5)
+
+knn(titanicDataDF[(!is.na(titanicDataDF$Age) & !is.na(titanicDataDF$Pclass)),c(3,6)],Thirty3,titanicDataDF$Survived[(!is.na(titanicDataDF$Age) & !is.na(titanicDataDF$Pclass))], prob = TRUE, k = 5)
+
+```
+
+# Adding in Male and Female: Categorical Variables
+```{r}
+library(tidyverse)
+
+#Male
+trainTitanicMale = trainTitanic %>% filter(Sex == "male")
+testTitanicMale = testTitanic %>% filter(Sex == "male")
+
+classificationsMale = knn(trainTitanicMale[(!is.na(trainTitanicMale$Age) & !is.na(trainTitanicMale$Pclass)),c(3,6)],testTitanicMale[(!is.na(testTitanicMale$Age) & !is.na(testTitanicMale$Pclass)),c(3,6)],trainTitanicMale$Survived[(!is.na(trainTitanicMale$Age) & !is.na(trainTitanicMale$Pclass))], prob = TRUE, k = 5)
+
+#Female
+trainTitanicFemale = trainTitanic %>% filter(Sex == "female")
+testTitanicFemale = testTitanic %>% filter(Sex == "female")
+
+classificationsFemale = knn(trainTitanicFemale[(!is.na(trainTitanicFemale$Age) & !is.na(trainTitanicFemale$Pclass)),c(3,6)],testTitanicFemale[(!is.na(testTitanicFemale$Age) & !is.na(testTitanicFemale$Pclass)),c(3,6)],trainTitanicFemale$Survived[(!is.na(trainTitanicFemale$Age) & !is.na(trainTitanicFemale$Pclass))], prob = TRUE, k = 5)
+
+classificationsMF = factor(c(classificationsMale,classificationsFemale), labels = c("No","Yes"))
+
+testM = testTitanicMale[(!is.na(testTitanicMale$Age) & !is.na(testTitanicMale$Pclass)),]
+testF = testTitanicFemale[(!is.na(testTitanicFemale$Age) & !is.na(testTitanicFemale$Pclass)),]
+
+testMF = rbind(testM,testF)
+
+#table(classificationsMF,testMF$SurvivedF[(!is.na(testMF$Age) & !is.na(testMF$Pclass))])
+table(classificationsMF,testMF$SurvivedF)
+
+CM = confusionMatrix(table(classificationsMF,factor(testMF$Survived, labels = c("No", "Yes"))), mode = "everything")
+CM
+```
+
+
+
+# Question 2
+
+```{r}
+set.seed(4)
+numks = 60 # For each of the 60 values of k that we are trying
+iterations = 30 # obtain an accuracy statistic for 30 different train test splits
+splitPerc = .7
+
+masterAcc = matrix(nrow = iterations, ncol = numks) # this is a matrix that holds the 
+
+for(j in 1:iterations)
+{
+  trainIndices = sample(1:dim(iris)[1],round(splitPerc * dim(iris)[1]))
+  train = iris[trainIndices,]
+  test = iris[-trainIndices,]
+  for(i in 1:numks)
+  {
+    classifications = knn(train[,c(1,3)],test[,c(1,3)],train$Species, prob = TRUE, k = i)
+    table(classifications,test$Species)
+    CM = confusionMatrix(table(classifications,test$Species))
+    masterAcc[j,i] = CM$overall[1]
+  }
+  
+}
+
+MeanAcc = colMeans(masterAcc)
+
+plot(seq(1,numks,1),MeanAcc, type = "l", ylim = c(.5,1))
+
+which.max(MeanAcc)
+max(MeanAcc)
+
+```
+
+# BONUS
+```{r}
+set.seed(3)
+iterations = 10
+numks = 20
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+
+for(j in 1:iterations)
+{
+  
+  for(i in 1:numks)
+  {
+    CM = confusionMatrix(table(iris[,5],knn.cv(iris[,c(1,2)],iris[,5],k = i)))
+    masterAcc[j,i] = CM$overall[1]
+    
+  }
+  
+}
+
+MeanAcc = colMeans(masterAcc)
+
+plot(seq(1,numks,1),MeanAcc, type = "l")
+
+which.max(MeanAcc)
+max(MeanAcc)
+```
+
+
+
+```{r}
+#set.seed()
+numks = 60 # For each of the 60 values of k that we are trying
+iterations = 30 # obtain an accuracy statistic for 30 different train test splits
+splitPerc = .7
+
+masterAcc = matrix(nrow = iterations, ncol = numks) # this is a matrix that holds the 
+
+for(j in 1:iterations)
+{
+  trainIndices = sample(1:dim(titanicDataDF)[1],round(splitPerc * dim(titanicDataDF)[1]))
+  train = na.omit(titanicDataDF[trainIndices,])
+  test = na.omit(titanicDataDF[-trainIndices,])
+  
+  for(i in 1:numks)
+  {
+    classifications = knn(train[,c(3,6)],test[,c(3,6)],train$Survived, prob = TRUE, k = i)
+    table(classifications,test$Survived)
+    CM = confusionMatrix(table(classifications,test$Survived))
+    masterAcc[j,i] = CM$overall[1]
+  }
+  
+}
+
+MeanAcc = colMeans(masterAcc)
+
+plot(seq(1,numks,1),MeanAcc, type = "l", ylim = c(.5,1))
+
+which.max(MeanAcc)
+max(MeanAcc)
+
+```
