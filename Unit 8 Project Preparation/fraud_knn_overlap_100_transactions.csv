@@ -1,0 +1,101 @@
+transaction_id,amount,time_since_last_transaction_minutes,fraud_status
+T001,70.75,28.16,Not Fraud
+T002,75.48,66.45,Not Fraud
+T003,158.88,21.66,Not Fraud
+T004,102.67,64.46,Not Fraud
+T005,64.27,37.03,Not Fraud
+T006,40.49,74.02,Not Fraud
+T007,110.97,22.45,Not Fraud
+T008,86.47,86.41,Not Fraud
+T009,121.6,56.11,Not Fraud
+T010,126.41,58.29,Not Fraud
+T011,135.71,35.45,Not Fraud
+T012,146.43,5.31,Not Fraud
+T013,62.51,71.74,Not Fraud
+T014,60.56,69.76,Not Fraud
+T015,118.96,73.13,Not Fraud
+T016,149.35,25.08,Not Fraud
+T017,89.48,67.95,Not Fraud
+T018,129.7,57.53,Not Fraud
+T019,46.2,17.37,Not Fraud
+T020,73.8,2.96,Not Fraud
+T021,92.4,34.95,Not Fraud
+T022,104.01,13.37,Not Fraud
+T023,100.2,40.26,Not Fraud
+T024,85.23,88.61,Not Fraud
+T025,29.64,21.62,Not Fraud
+T026,147.57,2.06,Fraud
+T027,72.25,23.38,Not Fraud
+T028,70.49,59.33,Not Fraud
+T029,87.49,37.43,Not Fraud
+T030,28.23,19.05,Not Fraud
+T031,122.26,81.73,Not Fraud
+T032,161.76,26.3,Fraud
+T033,2.0,25.54,Not Fraud
+T034,65.27,12.31,Not Fraud
+T035,55.84,8.9,Not Fraud
+T036,72.72,49.74,Not Fraud
+T037,114.18,29.97,Fraud
+T038,18.62,28.58,Fraud
+T039,70.76,53.88,Not Fraud
+T040,138.65,20.08,Not Fraud
+T041,2.0,26.64,Not Fraud
+T042,81.34,22.95,Not Fraud
+T043,164.27,30.94,Not Fraud
+T044,129.3,45.61,Not Fraud
+T045,68.45,46.88,Not Fraud
+T046,161.68,10.52,Not Fraud
+T047,16.33,25.14,Not Fraud
+T048,51.96,35.96,Not Fraud
+T049,130.01,20.25,Not Fraud
+T050,63.33,13.25,Not Fraud
+T051,153.94,27.69,Not Fraud
+T052,142.69,42.89,Not Fraud
+T053,86.26,54.0,Not Fraud
+T054,56.24,114.1,Not Fraud
+T055,56.36,26.81,Not Fraud
+T056,14.32,10.7,Fraud
+T057,68.72,29.91,Not Fraud
+T058,54.68,83.95,Not Fraud
+T059,127.88,17.49,Not Fraud
+T060,77.96,68.9,Not Fraud
+T061,91.13,56.92,Not Fraud
+T062,166.49,25.2,Fraud
+T063,70.97,41.94,Not Fraud
+T064,54.8,27.06,Not Fraud
+T065,154.37,96.13,Not Fraud
+T066,89.37,80.51,Not Fraud
+T067,94.73,96.25,Not Fraud
+T068,101.38,0.95,Not Fraud
+T069,20.37,43.3,Not Fraud
+T070,93.73,26.67,Not Fraud
+T071,117.77,38.62,Not Fraud
+T072,68.34,43.99,Not Fraud
+T073,133.33,20.15,Not Fraud
+T074,86.27,15.86,Not Fraud
+T075,109.39,27.15,Not Fraud
+T076,188.05,17.52,Not Fraud
+T077,59.86,46.01,Not Fraud
+T078,134.39,18.78,Fraud
+T079,6.98,5.42,Fraud
+T080,71.88,47.64,Not Fraud
+T081,142.96,77.45,Not Fraud
+T082,52.97,88.17,Not Fraud
+T083,58.75,7.09,Not Fraud
+T084,52.68,26.15,Not Fraud
+T085,98.37,21.75,Not Fraud
+T086,57.08,60.26,Not Fraud
+T087,123.69,28.77,Not Fraud
+T088,90.78,37.36,Not Fraud
+T089,12.75,16.02,Fraud
+T090,78.43,28.84,Not Fraud
+T091,82.24,35.19,Not Fraud
+T092,140.18,46.73,Not Fraud
+T093,153.38,38.74,Not Fraud
+T094,67.32,18.31,Not Fraud
+T095,40.22,34.04,Not Fraud
+T096,18.03,58.82,Not Fraud
+T097,74.81,6.03,Not Fraud
+T098,55.3,40.24,Not Fraud
+T099,144.45,7.92,Fraud
+T100,104.75,23.55,Not Fraud
