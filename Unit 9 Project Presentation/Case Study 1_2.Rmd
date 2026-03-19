@@ -1,0 +1,802 @@
+---
+title: "case study 1_2"
+author: "Isabella Westlauer"
+date: "2026-03-07"
+output: html_document
+---
+---
+title: "Case Study 1 - Attrition"
+author: "Isabella Westlauer"
+date: "2026-03-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+### libraries for EDA and Initial Modeling
+library(skimr)
+library(gt)
+library(tidyverse)
+library(DataExplorer)
+library(ggplot2)
+library(plotly)
+library(GGally)
+```
+## Data intake
+```{r}
+# raw_data <- read.csv(file.choose())
+raw_data <- read.csv("CaseStudy1-data.csv")
+```
+
+## Prior Probability of Attrition
+```{r}
+# Count and Percent of Attrition from original dataset
+overall_rate <- mean(raw_data$Attrition == "Yes") * 100 #16.09195%
+attrition_positive = filter(raw_data, Attrition == "No")
+dim(attrition_positive)[1] #730, 83.9%
+attrition_negative = filter(raw_data, Attrition == "Yes")
+dim(attrition_negative)[1] #140, 16.1%
+```
+
+## convert categorical data to numeric
+```{r}
+raw_data$Attrition_num <- ifelse(raw_data$Attrition == "Yes", 1, 0)
+```
+
+## Explore the spread of all features
+```{r}
+raw_data %>%
+  plot_boxplot(by = "Attrition")
+```
+
+## Look at attrition by job role, department, marital status
+```{r}
+raw_data %>%
+  group_by(Department) %>%
+  #group_by(JobRole) %>%
+  #group_by(MaritalStatus) %>%
+  summarize(n = n(),
+            attrition_rate = mean(Attrition == "Yes") * 100
+  ) %>%
+  arrange(desc(attrition_rate)) %>%
+  ggplot(aes(x = reorder(Department, 
+  # ggplot(aes(x = reorder(JobRole, 
+  # ggplot(aes(x = reorder(MaritalStatus, 
+                         attrition_rate), 
+           y = attrition_rate,
+           fill = Department)) +
+          # fill = JobRole)) +
+          # fill = MaritalStatus)) +
+  geom_col() +coord_flip() +
+  geom_text(aes(label = 
+                  paste0(round(attrition_rate, 1), "%")),
+            vjust = 0,
+            hjust = 1.1,
+            size = 5,
+            fontface = "bold") +
+  labs(
+    title = "Attrition Rate by Department",
+    # title = "Attrition Rate by Job Role",
+    # title = "Attrition Rate by Marital Status",
+    x = NULL,
+    y = "Attrition Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)+
+  theme(legend.position = "none")
+```
+
+```{r}
+raw_data$OverTime_num <- ifelse(raw_data$OverTime == "Yes", 1, 0)
+```
+
+## Plot attrition percentage for job involvement, stock option level
+```{r}
+raw_data %>%
+  # group_by(JobInvolvement) %>%
+  group_by(StockOptionLevel) %>%
+  summarise(
+    n = n(),
+    attrition_rate = mean(Attrition == "Yes") * 100
+  ) %>%
+  # arrange(JobInvolvement) %>%
+  arrange(StockOptionLevel) %>%
+  # ggplot(aes(x = factor(JobInvolvement),
+  ggplot(aes(x = factor(StockOptionLevel),
+           y = attrition_rate)) +
+  geom_col(fill = "steelblue", width = 0.6) +
+  geom_text(aes(label = 
+                  paste0(round(attrition_rate, 1), "%")),
+            vjust = 1,
+            size = 5,
+            fontface = "bold") +
+  geom_hline(yintercept = overall_rate,
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  labs(
+    # title = "Attrition Rate by Job Involvement",
+    title = "Attrition Rate by Stock Option Level",
+    # x = "Job Involvement",
+    x = "Stock Option Level",
+    y = "Attrition Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+## Try the ggbetweenstats to visualize total working years
+```{r}
+# Violin plot, box plot, scatter plot, and density plot
+library(ggstatsplot)
+plt <- ggbetweenstats(
+  data = raw_data,
+  x = Attrition,
+  y = TotalWorkingYears
+)
+plt
+```
+
+## Visualize attrition rate by overtime
+```{r}
+raw_data %>%
+  group_by(OverTime) %>%
+  summarise(
+    n = n(),
+    attrition_rate = mean(Attrition == "Yes") * 100
+  ) %>%
+  ggplot(aes(x = OverTime,
+           y = attrition_rate,
+           fill = OverTime)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(round(attrition_rate, 1), "%")),
+            vjust = 1,
+            size = 5,
+            fontface = "bold") +
+  geom_hline(yintercept = overall_rate,
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  labs(
+    title = "Attrition Rate by Overtime Status",
+    subtitle = paste("Overall Attrition Rate:", 
+                     round(overall_rate, 1), "%"),
+    x = "Overtime",
+    y = "Attrition Rate (%)"
+  ) +
+  theme_minimal(base_size = 14) +
+  scale_fill_manual(values = c("Yes" = "#e88631",
+                               "No"  = "#7c3896")) + 
+  theme(legend.position = "none")
+```
+
+## Correlation Heatmap, Bar Plot, GG Pairs of Selected Features
+```{r}
+raw_data %>% select(
+  "Attrition",
+  "JobInvolvement",
+  # "JobLevel",
+  # "StockOptionLevel",
+  "MonthlyIncome",
+  # "TotalWorkingYears",
+  # "MaritalStatus",
+  # "JobRole",
+  "OverTime"
+# ) %>% plot_correlation()
+# ) %>% plot_bar()
+) %>% ggpairs(aes(color = Attrition))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Classification Models
+```{r}
+library(class)
+library(caret)
+library(e1071) # Naive Bayes
+```
+
+### Change response variable to a factor and make "Yes" the positive class
+```{r}
+# get fresh raw data
+raw_data <- read.csv("CaseStudy1-data.csv")
+# make a copy of the raw_data for modeling
+model_data <- raw_data %>% select(
+                          "Attrition"
+                          ,"Age"
+                          ,"DistanceFromHome"
+                          ,"JobInvolvement"
+                          ,"JobLevel"
+                          ,"JobSatisfaction"
+                          ,"MaritalStatus"
+                          ,"MonthlyIncome"
+                          ,"NumCompaniesWorked"
+                          ,"OverTime"
+                          ,"WorkLifeBalance"
+                          ,"YearsAtCompany"
+                          ,"YearsSinceLastPromotion"
+                          )
+```
+## Train/Test Split
+```{r}
+#split and seed can be changed
+set.seed(60)
+split = .67
+
+obs = dim(model_data)[1]
+train_inds_knn = sample(seq(1:obs),round(split*obs))
+training_set_knn = model_data[train_inds_knn,]
+testing_set_knn = model_data[-train_inds_knn,]
+```
+
+## Feature Engineering
+"Data leakage":
+You should compute engineered features using only the training data 
+so the model does not accidentally learn information from the test set.
+
+```{r}
+# Split monthly income into four levels based on quartile
+income_breaks <- quantile(training_set_knn$MonthlyIncome,
+                          probs = c(0, 0.25, 0.5, 0.75, 1))
+training_set_knn$income_quartile_labels <- cut(training_set_knn$MonthlyIncome,
+                               breaks = income_breaks,
+                               include.lowest = TRUE,
+                               labels = c("Q1_Low",
+                                          "Q2_MidLow",
+                                          "Q3_MidHigh",
+                                          "Q4_High"))
+training_set_knn$income_quartile_num <- as.numeric(training_set_knn$income_quartile_labels)
+testing_set_knn$income_quartile_labels <- cut(testing_set_knn$MonthlyIncome,
+                               breaks = income_breaks,
+                               include.lowest = TRUE,
+                               labels = c("Q1_Low",
+                                          "Q2_MidLow",
+                                          "Q3_MidHigh",
+                                          "Q4_High"))
+testing_set_knn$income_quartile_num <- as.numeric(testing_set_knn$income_quartile_labels)
+
+# look at median income
+median_attrition_income <- median(
+                        training_set_knn$MonthlyIncome[training_set_knn$Attrition == "Yes"]
+                      )
+training_set_knn$low_income_risk <- ifelse(
+  training_set_knn$MonthlyIncome < median_attrition_income, 1, 0
+)
+testing_set_knn$low_income_risk <- ifelse(
+  testing_set_knn$MonthlyIncome < median_attrition_income, 1, 0
+)
+
+# marital status to marital attrition risk
+training_set_knn$marital_status_single <- ifelse(training_set_knn$MaritalStatus == "Single", 1, 0)
+training_set_knn$marital_attrition_risk <- dplyr::case_when(
+                                    training_set_knn$MaritalStatus == "Single" ~ 2,
+                                    training_set_knn$MaritalStatus == "Married" ~ 1,
+                                    training_set_knn$MaritalStatus == "Divorced" ~ 0
+                                  )
+
+testing_set_knn$marital_status_single <- ifelse(testing_set_knn$MaritalStatus == "Single", 1, 0)
+testing_set_knn$marital_attrition_risk <- dplyr::case_when(
+                                    testing_set_knn$MaritalStatus == "Single" ~ 2,
+                                    testing_set_knn$MaritalStatus == "Married" ~ 1,
+                                    testing_set_knn$MaritalStatus == "Divorced" ~ 0
+                                  )
+
+# Burnout Index: Overtime + (4- Work Life Balance) + (4- Job Satisfaction)
+training_set_knn$OverTime_num <- ifelse(training_set_knn$OverTime == "Yes", 1, 0)
+training_set_knn$burnout_index <-
+  training_set_knn$OverTime_num + 
+  (4-training_set_knn$WorkLifeBalance) + 
+  (4-training_set_knn$JobSatisfaction)
+testing_set_knn$OverTime_num <- ifelse(testing_set_knn$OverTime == "Yes", 1, 0)
+testing_set_knn$burnout_index <-
+  testing_set_knn$OverTime_num + 
+  (4-testing_set_knn$WorkLifeBalance) + 
+  (4-testing_set_knn$JobSatisfaction)
+
+# Pay Frustration: (Job Level + Job Involvement) / Monthly Income
+training_set_knn$pay_frustration <-
+  (training_set_knn$JobLevel + training_set_knn$JobInvolvement)*2000 /
+  training_set_knn$income_quartile_num
+testing_set_knn$pay_frustration <-
+  (testing_set_knn$JobLevel + testing_set_knn$JobInvolvement)*2000 /
+  testing_set_knn$income_quartile_num
+
+# Career Stagnation: Years Since Last Promotion / (Years at Company +1)
+training_set_knn$career_stagnation <-
+  training_set_knn$YearsSinceLastPromotion /
+  (training_set_knn$YearsAtCompany + 1)
+testing_set_knn$career_stagnation <-
+  testing_set_knn$YearsSinceLastPromotion /
+  (testing_set_knn$YearsAtCompany + 1)
+
+# Commute Pain: Distance from Home * Overtime
+training_set_knn$commute_pain <-
+  training_set_knn$DistanceFromHome *
+  training_set_knn$OverTime_num
+testing_set_knn$commute_pain <-
+  testing_set_knn$DistanceFromHome *
+  testing_set_knn$OverTime_num
+
+# job hopping rate based on marital status, num companies, age
+training_set_knn$job_hopping_rate <-
+  training_set_knn$marital_attrition_risk *
+  (training_set_knn$NumCompaniesWorked / 
+  training_set_knn$Age)
+testing_set_knn$job_hopping_rate <-
+  testing_set_knn$marital_attrition_risk *
+  (testing_set_knn$NumCompaniesWorked / 
+  testing_set_knn$Age)
+
+# compensation unfairness based on income, job involvement, overtime
+training_set_knn$compensation_unfairness <- 
+  training_set_knn$income_quartile_num * 
+  training_set_knn$JobInvolvement *
+  (1+training_set_knn$OverTime_num)
+testing_set_knn$compensation_unfairness <- 
+  testing_set_knn$income_quartile_num * 
+  testing_set_knn$JobInvolvement *
+  (1+testing_set_knn$OverTime_num)
+
+# reorder the levels so Attrition Yes is the positive class
+training_set_knn$Attrition <- as.factor(training_set_knn$Attrition)
+levels(training_set_knn$Attrition)
+training_set_knn$Attrition <- relevel(training_set_knn$Attrition, "Yes")
+levels(training_set_knn$Attrition)
+
+testing_set_knn$Attrition <- factor(testing_set_knn$Attrition,
+                                    levels = levels(training_set_knn$Attrition))
+
+#scaling
+training_set_knn_scaled <- scale(training_set_knn[,c(
+  "burnout_index"
+  ,"career_stagnation"
+  ,"pay_frustration"
+  ,"job_hopping_rate"
+  ,"compensation_unfairness"
+  ,"commute_pain"
+)])
+
+testing_set_knn_scaled <- scale(
+  testing_set_knn[,c(
+    "burnout_index"
+    ,"career_stagnation"
+    ,"pay_frustration"    
+    ,"job_hopping_rate"
+    ,"compensation_unfairness"
+    ,"commute_pain"
+  )],
+  center = attr(training_set_knn_scaled,"scaled:center"),
+  scale  = attr(training_set_knn_scaled,"scaled:scale")
+)
+
+```
+
+
+## KNN model (not optimized)
+```{r}
+# tunable threshold, hyperparameter k
+classification_threshold = 0.104
+k_value = 19
+```
+
+
+```{r}
+set.seed(47)
+preds <- knn(training_set_knn_scaled,
+             testing_set_knn_scaled,
+             training_set_knn$Attrition,
+             k = k_value, 
+             prob = TRUE)
+
+# use the threshold
+prob <- attr(preds, "prob")
+prob_yes <- ifelse(preds == "Yes", prob, 1 - prob)
+preds2 <- ifelse(prob_yes > classification_threshold, "Yes", "No")
+preds2 <- factor(preds2, levels = levels(testing_set_knn$Attrition))
+
+# confusion matrix
+cm_knn <- confusionMatrix(preds2, testing_set_knn$Attrition)
+cm_knn$table
+
+accuracy_knn_1 <- cm_knn$overall[1] #accuracy
+sensitivity_knn_1 <- cm_knn$byClass[1] #sensitivity
+specificity_knn_1 <- cm_knn$byClass[2] #specificity
+accuracy_knn_1
+sensitivity_knn_1
+specificity_knn_1
+```
+
+
+## Tune the hyperparameter k
+We find that k=19 has the highest sensitivity. 
+
+```{r}
+# I only want to pick an odd numbered k
+set.seed(60)
+numks = 120 # For each of the 60 values of k that we are trying
+iterations = 30 # obtain an accuracy statistic for 30 different train test splits
+split = .7
+obs = dim(raw_data)[1]
+
+# I only want the highest sensitivity
+masterSens = matrix(nrow = iterations, ncol = numks)
+
+for(j in 1:iterations)
+{
+
+  trainIndices = sample(seq(1:obs),round(split*obs))
+  trainSet = raw_data[trainIndices,]
+  testSet = raw_data[-trainIndices,]
+  
+  train_knn <- scale(trainSet[,c(
+                              "burnout_index"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              )])
+
+  test_knn  <- scale(testSet[,c(
+                              "burnout_index"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              )],
+                   center = attr(train_knn,"scaled:center"),
+                   scale  = attr(train_knn,"scaled:scale"))
+  for(i in seq(1, numks, by = 2))
+    {
+      preds <- knn(train_knn,
+               test_knn,trainSet$Attrition,
+               k = i, 
+               prob = TRUE)
+  
+      prob <- attr(preds, "prob")
+      prob_yes <- ifelse(preds == "Yes", prob, 1 - prob)
+      preds2 <- ifelse(prob_yes > classification_threshold, "Yes", "No")
+      preds2 <- factor(preds2, levels = levels(testSet$Attrition))
+      
+      cm <- preds2 %>%
+        table(testSet$Attrition) %>%
+        confusionMatrix()
+      masterSens[j,i] = cm$byClass[1]
+    }
+}
+
+MeanSens = colMeans(masterSens)
+plot(seq(1,numks,1),MeanSens, type = "l", ylim = c(.5,1))
+which.max(MeanSens) # which k value has the highest sensitivity? k=13
+max(MeanSens)
+```
+
+
+## Tune the classification threshold
+```{r}
+preds <- knn(train_knn,
+             test_knn,trainSet$Attrition,
+             k = 19, 
+             prob = TRUE)
+prob <- attr(preds, "prob")
+prob_yes <- ifelse(preds == "Yes", prob, 1 - prob)
+
+# zero in on the threshold range:
+# thresholds <- seq(0.45, 0.05, by = -0.05)
+# thresholds <- seq(0.3, 0.1, by = -0.01)
+thresholds <- seq(0.11, 0.09, by = -0.001)
+length(thresholds)
+
+accs = data.frame(
+  accuracy = numeric(length(thresholds)),
+  sensitivity = numeric(length(thresholds)),
+  specificity = numeric(length(thresholds)),
+  yes_threshold = thresholds
+)
+
+for (j in seq_along(thresholds)) {
+
+  t <- thresholds[j]
+
+  preds2 <- ifelse(prob_yes > t, "Yes", "No")
+  preds2 <- factor(preds2, levels = levels(testSet$Attrition))
+
+  cm <- preds2 %>%
+    table(testSet$Attrition) %>%
+    confusionMatrix()
+
+  accs$accuracy[j] <- cm$overall[1]
+  accs$sensitivity[j] <- cm$byClass[1]
+  accs$specificity[j] <- cm$byClass[2]
+}
+
+max_sens <- max(accs$sensitivity)
+best_sens <- accs$sensitivity[accs$sensitivity == max_sens]
+best_acc <-accs$accuracy[accs$sensitivity == max_sens]
+best_spec<-accs$specificity[accs$sensitivity == max_sens] 
+
+#get the highest sensitivity where specificity is at least 0.6
+valid <- accs %>%
+  filter(specificity >= 0.6)
+best_row <- valid %>%
+  slice_max(sensitivity, n = 1)
+best_threshold <- max(best_row$yes_threshold)
+best_sens <- max(best_row$sensitivity)
+best_spec <- max(best_row$specificity)
+best_acc <- max(best_row$accuracy)
+
+best_threshold #0.104
+best_sens #0.69
+best_spec #0.68
+best_acc #0.68
+```
+
+## Plot the threshold accuracies
+```{r}
+library(tidyr)
+library(ggplot2)
+
+accs_long <- accs |>
+  pivot_longer(
+    cols = c(sensitivity, specificity),
+    names_to = "metric",
+    values_to = "value"
+  )
+
+label_text <- paste0(
+  "Threshold = ", round(best_threshold, 2),
+  "\nSensitivity = ", round(best_sens, 2),
+  "\nSpecificity = ", round(best_spec, 2)
+)
+
+ggplot(accs_long,
+       aes(x = yes_threshold,
+           y = value,
+           color = metric)) +
+
+  geom_line(size = 1.3) +
+
+  geom_point(size = 3) +
+
+  geom_hline(yintercept = 0.6,
+             linetype = "dashed",
+             color = "gray40") +
+  geom_vline(xintercept = best_threshold,
+           linetype = "dashed",
+           color = "darkgreen",
+           size = 1) +
+  
+    annotate("text",
+           x = best_threshold + 0.02,
+           y = 0.8,
+           label = label_text,
+           hjust = 0,
+           size = 4,
+           color = "black") +
+
+  scale_color_manual(values = c("steelblue","firebrick")) +
+
+  labs(
+    title = "Effect of Classification Threshold on Model Performance",
+    x = "Probability Threshold for Predicting Attrition = Yes",
+    y = "Model Performance",
+    color = "Metric"
+  ) +
+
+  theme_minimal(base_size = 14)
+
+```
+
+## Test the optimized KNN model
+```{r}
+set.seed(60)
+split = .7
+
+obs = dim(raw_data)[1]
+trainIndices = sample(seq(1:obs),round(split*obs))
+trainSet = raw_data[trainIndices,]
+testSet = raw_data[-trainIndices,]
+classification_threshold = 0.104
+k_value = 19
+train_knn <- scale(trainSet[,c(
+                              "burnout_index"
+                              ,"pay_frustration"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              ,"commute_pain"
+                              ,"job_hopping_rate"
+                              ,"compensation_unfairness"
+                              )])
+
+test_knn  <- scale(testSet[,c(
+                              "burnout_index"
+                              ,"pay_frustration"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              ,"commute_pain"
+                              ,"job_hopping_rate"
+                              ,"compensation_unfairness"
+                              )],
+                   center = attr(train_knn,"scaled:center"),
+                   scale  = attr(train_knn,"scaled:scale"))
+preds <- knn(train_knn,
+             test_knn,trainSet$Attrition,
+             k = k_value, 
+             prob = TRUE)
+
+prob <- attr(preds, "prob")
+
+prob_yes <- ifelse(preds == "Yes", prob, 1 - prob)
+
+preds2 <- ifelse(prob_yes > classification_threshold, "Yes", "No")
+preds2 <- factor(preds2, levels = levels(testSet$Attrition))
+
+cm <- preds2 %>%
+  table(testSet$Attrition) %>%
+  confusionMatrix()
+cm
+```
+
+## Naive Bayes Model
+```{r}
+model <- naiveBayes(trainSet[, c("burnout_index"
+                              ,"pay_frustration"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              ,"commute_pain"
+                              ,"job_hopping_rate"
+                              # ,"compensation_unfairness"
+                                 )],
+                    trainSet$Attrition)
+
+pred_probs <- predict(model,
+                 testSet[, c("burnout_index"
+                              ,"pay_frustration"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              ,"commute_pain"
+                              ,"job_hopping_rate"
+                              # ,"compensation_unfairness"
+                             )],
+                 type = "raw")
+# 
+# 
+# pred_class <- ifelse(pred_probs[, "Yes"] > 0.1, "Yes", "No")
+# CM_NB <- confusionMatrix(factor(pred_class, levels=c("No","Yes")),
+#                 testSet$Attrition)
+# CM_NB$overall[1]
+# CM_NB$byClass[1]
+# CM_NB$byClass[2]
+```
+```{r}
+prob_yes <- pred_probs[, "Yes"]
+
+# zero in on the threshold range
+# thresholds <- seq(0.5, 0.01, by = -0.01)
+# thresholds <- seq(0.3, 0.05, by = -0.01)
+thresholds <- seq(0.1, 0.01, by = -0.001)
+# length(thresholds)
+
+accs_nb <- data.frame(
+  accuracy = numeric(length(thresholds)),
+  sensitivity = numeric(length(thresholds)),
+  specificity = numeric(length(thresholds)),
+  yes_threshold = thresholds
+)
+
+for (j in seq_along(thresholds)) {
+
+  t <- thresholds[j]
+
+  preds <- ifelse(prob_yes > t, "Yes", "No")
+  preds <- factor(preds, levels = levels(testSet$Attrition))
+
+  cm <- confusionMatrix(preds, testSet$Attrition)
+
+  accs_nb$accuracy[j] <- cm$overall[1]
+  accs_nb$sensitivity[j] <- cm$byClass[1]
+  accs_nb$specificity[j] <- cm$byClass[2]
+}
+
+valid_nb <- accs_nb %>%
+  filter(specificity >= 0.6)
+
+best_nb <- valid_nb %>%
+  slice_max(sensitivity, n = 1)
+
+best_nb
+```
+
+## Visualize the comparison between models
+```{r}
+accs$model <- "KNN"
+accs_nb$model <- "Naive Bayes"
+all_accs <- rbind(accs, accs_nb)
+
+all_long <- all_accs |>
+  pivot_longer(
+    cols = c(sensitivity, specificity),
+    names_to = "metric",
+    values_to = "value"
+  )
+ggplot(all_long,
+       aes(x = yes_threshold,
+           y = value,
+           color = metric)) +
+
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  
+  geom_hline(yintercept = 0.6,
+             linetype = "dashed",
+             color = "gray40") +
+
+  facet_wrap(~model) +
+
+  scale_color_manual(values = c("steelblue","firebrick")) +
+
+  labs(
+    title = "Threshold Tuning Comparison: k-NN vs Naive Bayes",
+    x = "Probability Threshold for Predicting Attrition = Yes",
+    y = "Model Performance",
+    color = "Metric"
+  ) +
+
+  theme_minimal(base_size = 14)
+```
+
+## Test optimized NB model
+```{r}
+model <- naiveBayes(trainSet[, c("burnout_index"
+                              ,"pay_frustration"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              ,"commute_pain"
+                              ,"job_hopping_rate"
+                                 )],
+                    trainSet$Attrition)
+
+pred_probs <- predict(model,
+                 testSet[, c("burnout_index"
+                              ,"pay_frustration"
+                              ,"income_quartile_num"
+                              ,"career_stagnation"
+                              ,"commute_pain"
+                              ,"job_hopping_rate"
+                             )],
+                 type = "raw")
+
+
+pred_class <- ifelse(pred_probs[, "Yes"] > 0.066, "Yes", "No")
+CM_NB <- confusionMatrix(factor(pred_class, levels=c("No","Yes")),
+                testSet$Attrition)
+CM_NB
+```
+
+```{r}
+
+```
+
+
+
+
+
+
