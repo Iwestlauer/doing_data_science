@@ -1,0 +1,288 @@
+---
+title: "Unit 5 For Live Session Solution"
+author: "Bivin"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Unit 5 Live Session R Code
+
+## Part 1 BBall
+
+Creating the TotalInches column:
+```{r}
+library(tidyverse)
+BBall = read.csv(file.choose(),header = TRUE)
+head(BBall)
+BBall = BBall %>% separate(height, c("feet","inches"), remove = FALSE) %>% mutate(TotalInches = 12*as.numeric(feet) + as.numeric(inches))
+head(BBall)
+
+
+BBall[2143,]
+#https://en.wikipedia.org/wiki/George_Karl
+BBall[2143,"height"] = "6-2"
+BBall[2143,"weight"] = "185"
+BBall[2143,"TotalInches"] = 6*12 + 2
+BBall[2143,"position"] = "G"
+
+#Check our cleaning
+BBall[2143,]
+
+
+BBall = BBall %>% separate(height, c("feet","inches"), remove = FALSE) %>% mutate(TotalInches = 12*as.numeric(feet) + as.numeric(inches))
+head(BBall)
+class(BBall$TotalInches)
+
+#note remove is now default to TRUE
+BBall = BBall %>% separate(height, c("feet","inches")) %>% mutate(TotalInches = 12*as.numeric(feet) + as.numeric(inches))
+head(BBall)
+
+#Clean Weight
+class(BBall$weight)
+BBall$weight = as.numeric(BBall$weight)
+class(BBall$weight)
+```
+
+Making the histogram:
+```{r}
+BBall %>% ggplot(aes(x = TotalInches, fill = position)) + geom_histogram()
+
+
+BBall %>% ggplot(aes(x = TotalInches, color = position)) + geom_histogram() + facet_wrap(~position)
+
+
+BBall %>% filter(position != "") %>% select(position,TotalInches) %>% ggplot(aes(x = TotalInches, color = position)) + geom_histogram() + facet_wrap(~position) + theme(legend.position = "None") + xlab("Inches")
+
+BBall %>% filter(position != "") %>% ggplot(aes(x = TotalInches, color = position)) + geom_histogram() + facet_grid(~position) + theme(legend.position = "None") + xlab("Inches") + ylab("Count")
+```
+
+
+## Breakout: Create a column plot the compares the average height of all players that have come from Duke University, SMU and Texas Tech University.  
+```{r}
+
+BBall %>% filter(college == "Duke University" | college == "Southern Methodist University" | college == "Texas Tech University") %>% group_by(college) %>% dplyr::summarize(meanHeight = mean(TotalInches)) 
+
+BBall %>% filter(college == "Duke University" | college == "Southern Methodist University" | college == "Texas Tech University") %>% group_by(college) %>% dplyr::summarize(meanHeight = mean(TotalInches)) %>% ggplot(aes(x = college, y = meanHeight, fill = college)) + geom_col() + theme(legend.position = "none") + ylab("Mean Height") + xlab("College")
+
+BBall %>% filter(college == "Duke University" | college == "Southern Methodist University" | college == "Texas Tech University") %>% group_by(college) %>% dplyr::summarize(meanHeight = mean(TotalInches)) %>% ggplot(aes(x = college, y = meanHeight, fill = college)) + geom_col() + theme(legend.position = "none") + coord_cartesian(ylim = c(78.3, 78.6)) + ylab("Mean Height") + xlab("College")
+
+# Conduct T-Test of mean height at Duke versus that of SMU
+
+BBall_Duke = BBall %>% filter(college == "Duke University")
+
+BBall_SMU = BBall %>% filter(college == "Southern Methodist University")
+
+BBall_TTU = BBall %>% filter(college == "Texas Tech University")
+
+
+
+t.test(BBall_TTU$TotalInches,BBall_SMU$TotalInches)
+
+# There is not sufficient evidence to suggest that the mean height of basketball players from Duke is different from that of SMU (pvalue = .9203)
+
+```
+
+## Part 2 Soccer (Football)
+
+```{r}
+FIFA = read.csv(file.choose(),header = TRUE)
+head(FIFA)
+
+FIFA = FIFA %>% separate(Height, c("feet","inches"),sep = "'", remove = FALSE) %>% mutate(TotalInches = 12*as.numeric(feet) + as.numeric(inches)) %>% mutate(WeightNum = as.numeric(str_sub(FIFA$Weight,1,3)))
+head(FIFA)
+
+#Another way for weight:
+FIFA = FIFA %>% separate(Height, c("feet","inches"),sep = "'", remove = FALSE) %>% mutate(TotalInches = 12*as.numeric(feet) + as.numeric(inches)) %>% mutate(WeightNum2 = as.numeric(str_replace(FIFA$Weight, "lbs", "")))
+head(FIFA)
+
+#or 
+
+FIFA = FIFA %>% separate(Height, c("feet","inches"), sep = "'") %>% mutate(TotalInches = 12*as.numeric(feet) + as.numeric(inches)) %>% mutate(WeightNum3 = as.numeric(str_replace(FIFA$Weight, "...$", "")))
+head(FIFA)
+
+
+
+```
+
+There appears to be a strong positive and linear relationship between height and weigth (as you would expect).  But is it the same for positions LM and LB?
+```{r}
+FIFA %>% ggplot(aes(x = WeightNum3, y = TotalInches)) + geom_point() + ggtitle("Height v. Weight")
+FIFA %>% ggplot(aes(x = WeightNum3, y = TotalInches)) + geom_point() + ggtitle("Height v. Weight") + xlab("Weight (lbs)") + ylab("Height (inches)")
+
+```
+
+Visually, there is not a lot of evidence to suggest the  relationship is different. 
+```{r}
+FIFA %>% filter(Position == "LB" | Position == "LM") %>% ggplot(aes(x = WeightNum3, y = TotalInches, color = Position)) + geom_point() + geom_smooth(method = "lm") + ggtitle("Height v. Weight (LM vs. LB)") +facet_wrap(~Position) + xlab("Weight (lbs)") + ylab("Height (inches)")
+
+```
+
+## Break Out FIFA
+Assess a potential relationship between Wage vs Worth
+```{r}
+class(FIFA$Value)
+class(FIFA$Wage)
+
+#Isolate the number: Take Euro sign from the front and the K or M off the back
+FIFA$Value2 = str_sub(FIFA$Value,2,-2)
+FIFA$Wage2 = str_sub(FIFA$Wage,2,-2)
+
+#Change to numeric
+FIFA$Value2 = as.numeric(str_sub(FIFA$Value,2,-2))
+FIFA$Wage2 = as.numeric(str_sub(FIFA$Wage,2,-2))
+
+#Convert to same scale ... mult by 1000 if Value ends in a K and time 1000000 if it ends in a M
+FIFA$KorM = str_sub(FIFA$Value,-1,-1)
+FIFA$Value3 = if_else(FIFA$KorM == "K",FIFA$Value2 * 1000, FIFA$Value2*1000000,NaN)
+
+#Plotting
+FIFA %>% ggplot(aes(x = Value3, y = Wage2, col = Position)) + geom_point()
+FIFA %>% ggplot(aes(x = Value3, y = Wage2, col = Position)) + geom_point() + facet_wrap(~Position)
+
+```
+
+
+## Part 3: Baby Names
+
+```{r}
+# 1A
+# setwd()
+df <- read.table(file.choose(), sep=";", header=FALSE, col.names = c("Name", "Gender", "BornThisYear"))
+head(df)
+
+#df$Gender = factor(df$Gender)
+
+# 1B
+summary(df)
+str(df)
+
+#1C
+df$Name[grep("y{3}$", df$Name)] # There are others, of course; this regular expression does not even say it's at the end of the word
+
+#1D 
+
+y2016 <- df[-grep("y{3}$", df$Name),] # You could also hard-code which row it is, but I recommend this.
+dim(y2016)
+
+# 2A
+y2015 <- read.table(file.choose(), sep=",", header=FALSE, col.names = c("Name", "Gender", "BornThisYear"))
+head(y2015, n = 500)
+# Notice that my columns are the same name.  If students have different names, the code below changes a little.
+
+
+#2B
+tail(y2015,n=2000)
+# For 'interesting,' it could be a lot of things.  For one, all 10 are male.  All 10 start with the letter Z.  All are unpopular names. The data set is ordered by gender and then by BornThisYear and then alphabetically by Name.  
+
+#Let's order the list only by Born this year agnostic to gender.
+y2015 %>% arrange(desc(BornThisYear))
+
+#2C
+final<-merge(y2016, y2015, by=c("Name", "Gender"), all=FALSE) # There are other combinations of this.  Inner Join
+head(final, n = 100)
+
+#3A
+final$Total <- final$BornThisYear.x + final$BornThisYear.y # Creating column
+head(final)
+sum(final$Total) # Figuring out everyone in it
+
+#3B
+a<-data.frame(final[order(-final$Total), c("Name", "Gender","Total")]) 
+# You could also do tail here if you did ascending order.
+head(a, n=10)
+
+b<- final %>% arrange(desc(Total))
+head(b, n=10)
+
+
+#3C
+# Lots of strategies here.  You could include only girls, omit only boys, use group bys, etc
+girl<-head(a[a$Gender!="M",], n=10)
+head(girl)
+girl
+
+girl2 = head(b %>% filter(Gender == "F"), n = 10)
+head(girl2)
+girl2
+
+# 3D
+girl<-girl[,c("Name", "Total")]
+girl2 = girl %>% select(Name,Total)
+head(girl)
+head(girl2)
+
+write.csv(girl2, "itsagirl.csv", row.names = FALSE)
+
+
+# 4 Visualization
+
+#girl$Name = droplevels(girl$Name)
+
+girlnameplot = girl %>% ggplot(aes(x = factor(Name, levels = Name[order(Total)]), y = Total, fill = Name)) + geom_col() + ggtitle("Top 10 Girl Names!") + theme(legend.position = "none") + xlab("Name")
+
+boy<-head(a[a$Gender == "M",], n=10)
+boy2 = head(b %>% filter(Gender == "M"))
+
+#boy$Name = droplevels(boy$Name)
+
+boynameplot = boy %>% ggplot(aes(x = factor(Name, levels = Name[order(Total)]), y = Total, fill = Name)) + geom_col() + ggtitle("Top 10 Boy Names!") + theme(legend.position = "none") + xlab("Name")
+
+library(patchwork)
+
+girlnameplot + boynameplot
+
+
+```
+
+## Breakout Baby Names
+Make a barplot of the frequency of female names that start with each letter of the alphabet.  In other words, for each letter of the alphabet, count the number of children that start with that letter and make a plot that conveys that information.
+```{r}
+Final_Fem = final %>% filter(Gender == "F")
+Final_Fem$FirstLetter = str_sub(Final_Fem$Name,1,1)
+Final_Fem %>% group_by(FirstLetter) %>% summarise(Total = sum(Total))
+ByFirstLetter = Final_Fem %>% group_by(FirstLetter) %>% summarise(Total = sum(Total))
+ByFirstLetter %>% ggplot(aes(x = FirstLetter, y = Total, fill = FirstLetter)) + geom_bar(stat = "Identity") + ggtitle("Frequency of Child Names by First Letter") + xlab("First Letter") + ylab("Frequency") + theme(legend.position = "none")
+```
+
+## Email / RegEx Exercise BreakOut
+```{r}
+grep("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", "bsadler@smu.edu")
+```
+
+## Links for updated names data:
+https://www.ssa.gov/oact/babynames/
+https://catalog.data.gov/dataset/popular-baby-names/resource/02e8f55e-2157-4cb2-961a-2aabb75cbc8b
+https://github.com/aruljohn/popular-baby-names
+
+
+## Cleaning Phone Numbers
+```{r}
+library(stringr)
+
+x <- c(" (214) 555-0123 ", "214.555.0123", "+1 214 555 0123", "N/A")
+
+clean_phone <- x %>%
+  str_trim() %>%                                 # remove leading/trailing spaces
+  str_replace_all("[^0-9]", "") %>%              # keep only digits
+  str_replace("^1(?=\\d{10}$)", "") %>%          # drop leading country code 1 if present
+  str_replace("^(\\d{3})(\\d{3})(\\d{4})$", "(\\1) \\2-\\3") # format
+
+clean_phone
+
+```
+
+
+## Validating Emails
+```{r}
+library(stringr)
+
+emails <- c("sydney.holder@smu.edu", "bob@", "a@b", "alice+test@gmail.com", "bad@@gmail.com")
+
+# Simple “shape” check (not perfect, but good for QA screening)
+is_valid <- str_detect(emails, "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+
+data.frame(email = emails, valid = is_valid)
+```
+
