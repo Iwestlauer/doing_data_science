@@ -1,0 +1,477 @@
+Naive Bayes with Continuous Predictors Part 1
+
+Hi. 
+Now let's look at a naive Bayes classifier but this time with continuous predictors rather than categorical predictors. 
+So what could that look like? So what if B is continuous?
+
+Earlier, 
+we looked at outlook. 
+And that was sunny, 
+rainy, 
+cloudy. 
+Or we looked at wind, 
+which was high or low. 
+Now we want to look at, 
+what if we have numerical predictors like height and weight or something like that.
+
+So we're still going to use Bayes' theorem. 
+So we use Bayes' theorem here. 
+It's still the idea of just abstractly, 
+A given B, 
+probability of B given A times probability of A divided by that denominator. 
+So we're all very familiar with Bayes' formula and Bayes' theorem right now.
+
+So in order to get these probabilities, 
+before we said, 
+hey, 
+let's go and assume A and go count up how many B we had and then divide. 
+And we could find those just by looking at frequencies. 
+So now we're going to assume, 
+in order to get that probability, 
+that B is actually normally distributed. 
+We're going to assume a particular distribution on that since now it's a continuous variable.
+
+That may be a good assumption. 
+That might be a stretch. 
+But that's the assumption we're going to make, 
+at least for this lecture. 
+So that's the probability distribution.
+
+That's how we're going to get the idea of the probability of B given A. 
+We're going to get it from what's called the density or probability distribution function, 
+a PDF. 
+So those values that previously we counted when we looked at frequencies, 
+now we're just going to get, 
+after making a theoretical assumption of a normal distribution, 
+we'll just get from these plots. 
+So notice this here is the probability.
+
+I generated this. 
+So the probability, 
+the density of B given A. 
+And we would have a different density if it was given not A. 
+And kind of the apostrophe A is notation for not A.
+
+So the whole point here though is that you'd have different distributions. 
+And more than likely, 
+they would be two different distributions. 
+So great. 
+So probability of A and probability of not A are calculated with frequencies, 
+since A is categorical.
+
+So keep in mind, 
+A is categorical, 
+but B are the predictors. 
+So these probability of A's down here, 
+you can just count those up. 
+That's the prior probability of A and A not. 
+Again, 
+that's categorical.
+
+We can estimate categorical probabilities using frequencies. 
+But then B is a continuous predictor. 
+B is continuous. 
+We're going to get that from a formula.
+
+So we're going to look at this a little bit more. 
+But let's say that we've got two predictors. 
+So let's say we're going to predict or classify a person's gender, 
+which notice is categorical, 
+male or female, 
+based on their height and weight, 
+so height and weight both being continuous. 
+We have a person who's height is 135 and whose weight--
+
+I'm sorry. 
+That's pretty tall. 
+So we've got 135 pounds versus their height, 
+which is five feet eight inches tall. 
+So I've got a person that's five feet eight and 135 pounds.
+
+And I'm wondering just based on that little bit of information, 
+which I predict them to be without knowing anything else about them, 
+male or female. 
+So should we predict them to be male or female, 
+we should take a sample of 10 males and 10 females to gather evidence. 
+So that's what we do, 
+right? We go out, 
+and we look at the world.
+
+And we gather this evidence. 
+And here, 
+we've got the in kind of blue green here, 
+we have the 10 men on our chart. 
+Again, 
+height on the x-axis and weight on the y, 
+and red down here, 
+which we would expect. 
+On average, 
+the women or the females in the group, 
+the average is lower in weight and lower in height.
+
+And on average, 
+these men were higher in weight and higher in height. 
+So what we want to do is come up with--
+
+and these are our statistics. 
+So you can think of that as x bar. 
+That is x bar, 
+but I'm labeling it as mu hat. 
+So of the sample, 
+we had 161, 
+69.57,
+
+132, 
+and 65.14 for the average height of the females. 
+And we've got the corresponding standard deviations down there as well. 
+Great, 
+so what I did was--
+
+and we can look more into this in live session. 
+But I assumed multivariate normal distribution, 
+which the multivariate is the height and the weight. 
+And if we fit that distribution, 
+which we'll have the code here to show that here in a second. 
+You've got the code and have been running along with me as we go.
+
+That will yield this, 
+and so it's the same idea as the normal distribution. 
+Except I've got two variables that I'm assuming marginally, 
+they're both normally distributed by weight and by height. 
+And together, 
+they have this multivariate normal distribution. 
+And so at the center here are the weights.
+
+So right here, 
+the center of this, 
+if I track this over, 
+that should be about the 150 one. 
+And if I track this down on the height, 
+that should be about 69.57. 
+So those would be there, 
+and then the center of this one should be about 65, 
+132. 
+So that should be about 132, 
+and that should be about 65.
+
+That looks about right, 
+but that's how those are generated. 
+The center of those are the estimated multivariate normal distributions, 
+so cool. 
+So what we want to do is classify this person, 
+who is at 135 and five feet eight inches tall, 
+which I plot. 
+It's right here, 
+and you can see these are confidence bands.
+
+And I'm just about as confident visually as them being in a male as them being female just based on these bands. 
+So what I'd like to do is quantify that, 
+so what we're going to do is we're going to look at these assumed normal distributions. 
+And what I've plotted on here is when I generated the data, 
+I assumed a certain mu. 
+And we'll see that.
+
+So what we're going to do in practice is we're going to use these estimates, 
+so this mu hat and the sigma hat. 
+But what I've shown you on here is just in case you're going through and looking really closely is the distribution of the assumed of the means of mu and sigma, 
+not mu hat and sigma hat. 
+So maybe in live session or maybe as I'm going along here, 
+I'll show you what you would be using in practice, 
+which would be mu hat and sigma hat. 
+But anyhow, 
+it's just a proof of concept here, 
+or just explaining what they are.
+
+So this would be the probability of the weight of a male would have this distribution, 
+and the probability of the height of a male would have this distribution. 
+And I'm assuming I'm assuming those distributions. 
+I'll show you how I got those here in just a second, 
+so this is the probability of the weight of females. 
+Notice that it's kind of shifted over here to the left with respect to this one, 
+and also, 
+this one shifted a little bit to the left with respect to that one.
+
+And again, 
+these are generated from mu and sigma, 
+not mu hat and sigma hat. 
+So what do I mean by that? Let's flip on over here to R studio, 
+and we'll see if you've been running these. 
+You might have wondered, 
+hey, 
+where did--
+
+well, 
+and again, 
+I'd play around with this before watching the video. 
+But this is saying, 
+hey, 
+this is just the x's. 
+Give me all the x's. 
+This is for the height of female of 50 to 90, 
+and let's go by 0.1.
+
+And then I said, 
+hey, 
+give me all of the estimates from the density of a normal distribution with a mean of 66 and a standard deviation of two. 
+That's what I generated the data from, 
+so this plot--
+
+let's see here that. 
+Sorry, 
+we'll slow down a little bit. 
+But this is for the height of females, 
+so if I flip this back over. 
+So for the height of females, 
+that's this one right here.
+
+This was generated with a mean of about 66 and a standard deviation of two, 
+even though we go back a little bit. 
+Sorry, 
+here, 
+even though the data had a mean of 65.14, 
+a little bit less than mu, 
+which I'd expect it to not be exactly the same, 
+and a standard deviation of not two, 
+but 1.55. 
+So if you're trying to match these up, 
+that's probably the difference when you see it.
+
+So anyhow, 
+if I was to run that with a little ggplot, 
+I would generate that plot. 
+And that is the density. 
+That is the density for the heights of females. 
+And if you did that for all the rest of these, 
+I'll let you do that kind of on your own.
+
+You would get plots that look very similar. 
+We flip back to these guys. 
+OK, 
+that's how we're going to generate the probabilities, 
+and that's my whole point. 
+So here it is.
+
+These are the formulas, 
+so I want the probability of a male given their height and weight. 
+But what I'm going to use is Bayes' theorem that says, 
+oh, 
+well, 
+OK, 
+let's flip them around. 
+If I can find the probability of the weight and the height based being male, 
+times the probability of male divided by our normal denominator, 
+maybe I can find those probabilities and get an idea of this probability that I can't observe. 
+So the naive part of this, 
+keep in mind--
+
+notice I've got weight and height here.
+
+--is that conditional independence, 
+that the probability of weight and height given male is equal to the probability of weight given male plus the probability of height given male. 
+And that might be a strong assumption, 
+right? And certainly, 
+we think it doesn't match intuition, 
+but the model still might be useful. 
+Even though if you tell me the weight of a male, 
+that might give me some idea of the height of the male.
+
+There may be some positive correlation there. 
+Same thing with females, 
+give me the weight of a female. 
+You might be able to tell me a little bit better about the height of the female. 
+So granted, 
+the naive part is this conditional independence is often violated, 
+but still the model might be useful.
+
+And we could run it anyway. 
+We could use that model anyway, 
+so strong assumption--
+
+so how are we going to assess whether it's useful or not? We might look at contingency tables, 
+confusion matrices, 
+so on, 
+and so forth. 
+So here is our final model for the men, 
+and that's our final model for the women. 
+Once I plug-in for probability of weight and height given M, 
+we plug-in weight and height given M.
+
+We plug-in this guy. 
+Sorry, 
+for this, 
+we're going to plug-in that. 
+Well, 
+anyway, 
+for this, 
+we're going to plug-in that and this depending on if I'm dealing with men or with women. 
+So that is our two functions here that we're going to try to fit, 
+so we're going to go through the code here.
+
+So basically, 
+in a second, 
+we'll go through the code. 
+But there is my formula that I'm trying to get. 
+Where are each of these coming from? So whether I'm dealing with men or women in height or weight, 
+I've got four different distributions.
+
+And you're looking at these right here. 
+Now if you're following this really closely, 
+again, 
+I'll either show you now. 
+I'll just tell you about it now, 
+or we could show it live session. 
+These are the distributions of using mu and sigma, 
+not using mu hat and sigma hat.
+
+And I probably should have showed it to you given mu hat and sigma hat, 
+because that's what the numbers--
+
+that's where the estimates will really come from. 
+Again, 
+we can go over that in live session, 
+and the concept as the same. 
+So here, 
+again, 
+we sample 10 men and 10 women. 
+And thus the priors, 
+the probability in this sample of 20 of getting a male at random is 50%.
+
+And the probability of getting a female is 50%. 
+So the priors are 0.5 and 0.5 for probability of M and probability of F.
+
+So where do the rest of these come from? So for a person with a weight of 135 and a height of 68, 
+we have the probability, 
+again, 
+of a man being weight equals 35 given our assumed normal distribution would be we'd find wherever 135 is along the axis. 
+And we track it over, 
+and we should get something about 0.0063. 
+And so I don't have those labels on here.
+
+Remember, 
+labels are always very important. 
+Again, 
+we'll show those in live session, 
+but this should be about point 0.0063 just to get an idea of where it's coming from. 
+And then what about of the weight of a female?
+
+So I'd have to use a different distribution. 
+Because we've already said given the data, 
+we think that the mean and the sigma are different. 
+That'll give us a different normal distribution, 
+and I'll get some kind of estimate here. 
+So for about a weight of 135, 
+I'll have this estimate of point 0.0387,
+
+and that should be right about if I track that over. 
+I'm just getting it from a normal distribution, 
+so on and so forth. 
+How about the heights? I've got these two height distributions.
+
+I can get the height from the men and the women. 
+The estimate of those probabilities would come from there, 
+so probability of h given f--
+
+well, 
+for this one up here, 
+let's say this one's for the men, 
+right? That one's for the men, 
+so this p of wm, 
+so that's p of wm. 
+That should be about 0.0063, 
+so that number right there would be about 0.063.
+
+How about h given m? Well, 
+h given m should be about 0.1339, 
+so it'd be about 0.1339. 
+So let's check that out.
+
+So basically, 
+we have this formula for the men, 
+and we've got those probabilities. 
+These two are for the men, 
+men and men. 
+The other two are for the females, 
+and so we'll have this. 
+So we'll say, 
+hey, 
+what's the probability of being a male given this height and weight?
+
+And so I'd say, 
+there's my point 0.0063, 
+and there's h given m. 
+So that's my 0.1339 that we just discussed.
+
+There's my probability of m, 
+which is 0.5. 
+This is just going to repeat. 
+That's how it does in Bayes' theorem, 
+so those repeat. 
+And how about the probability of weight given f?
+
+So the probability of this weight of 135 given f is 0.0387, 
+so that's this 0.0387. 
+This h given f is 0.0466, 
+so that's where that comes from.
+
+And it looks like a complicated mathematical formula, 
+but really, 
+all the pieces are very easy to find. 
+And these are all coming from an assumed normal distribution, 
+so great. 
+So how about the female? Well, 
+the female, 
+we can see right here.
+
+You just plug-in those same ones, 
+and you can track that. 
+But it's just, 
+again, 
+one minus that. 
+If we have that naive Bayes' assumption, 
+these just add to be one. 
+So that is awesome.
+
+Before we finish this one off, 
+I wanted to take us over here to calculate it. 
+You've got this code, 
+but this is the code here. 
+This piece right here, 
+we'll calculate that. 
+Notice that I've done d norm.
+
+I've multiplied all this together. 
+That's that last calculation, 
+so these are all the intermediate metadata, 
+the intermediate calculations. 
+But this last calculation right here, 
+I'll just run the whole thing. 
+But the last one if you run it, 
+notice, 
+is 0.3196,
+
+which is very close to 0.3187. 
+It's just I rounded all these numbers here, 
+right? The 0.0063 and 0.1339,
+
+I rounded all those there. 
+I didn't round them over here, 
+but that's showing that those exactly match up. 
+So keep those in mind. 
+We'll be using those little bit later.
+
+But 0.3187, 
+0.6813, 
+I would clearly guess here or estimate that this person was a female based on their height and weight. 
+And these kind of give me some confidence of how well, 
+I think, 
+that that estimate should be.
+
+So that is a quick look at where we get the predictors from when I have a continuous predictors, 
+where I get those probabilities to use and base them from when I have a continuous predictor, 
+and then how to do that in R, 
+and how to kind of follow it all the way through. 
+Great job. 
+Base theorem, 
+fantastic. 
+See you next.
+

@@ -1,0 +1,84 @@
+---
+title: "Unit 7 Iris Classification-Naive Bayes"
+author: "Isabella Westlauer"
+date: "2026-02-11"
+output: html_document
+---
+For the full (multinomial) IRIS data (the iris dataset in R), do a 70-30 train/test cross validation and use sepal length and width as predictors.  
+
+```{r}
+library(caret)
+library(tidyr)
+library(plyr)
+library(jsonlite)
+library(dplyr)
+library(tidyverse)
+library(caret)
+library(e1071)
+summary(iris)
+iris_selected <- select(iris, "Sepal.Length", "Sepal.Width", "Species")
+# head(iris_selected)
+# sum(is.na(iris_selected$Sepal.Width))
+```
+
+
+Generate 100 different train/test splits and calculate the average accuracy, sensitivity and specificity. 
+
+```{r}
+iterations = 100
+masterAcc = numeric(iterations) #initialize a vector of 100
+masterSens = numeric(iterations)
+masterSpec = numeric(iterations)
+
+splitPerc = .7 #Training / Test split Percentage
+
+for(j in 1:iterations)
+{
+  #do not set seed so this is a different train-test split every time
+  trainIndices = sample(1:dim(iris_selected)[1],round(splitPerc * dim(iris_selected)[1]))
+  train = iris_selected[trainIndices,]
+  test = iris_selected[-trainIndices,]
+  
+  model = naiveBayes(train[,c(1,2)],train$Species)
+  table(predict(model,test[,c(1,2)]),test$Species)
+  CM = confusionMatrix(table(predict(model,test[,c(1,2)]),test$Species))
+  masterAcc[j] = CM$overall[1]
+  masterSens[j] = CM$byClass[1]
+  masterSpec[j] = CM$byClass[2]
+}
+
+MeanAcc = mean(masterAcc) # 0.7753333
+MeanSens = mean(masterSens) # 0.9779298
+MeanSpec = mean(masterSpec) # 0.7227796
+
+df <- bind_rows(
+  data.frame(value = masterAcc, metric = "Accuracy"),
+  data.frame(value = masterSens, metric = "Sensitivity"),
+  data.frame(value = masterSpec, metric = "Specificity")
+)
+means <- df %>%
+  group_by(metric) %>%
+  summarise(mean_value = mean(value))
+
+ggplot(df, aes(x = value)) +
+  geom_histogram(bins = 20, fill = "steelblue", color = "white") +
+  geom_vline(data = means,
+             aes(xintercept = mean_value),
+             linetype = "dashed",
+             color = "blue",
+             linewidth = 1) +
+  facet_wrap(~ metric) +
+  labs(title = "Distribution of Performance Metrics",
+       x = "Value",
+       y = "Count")
+
+
+
+
+```
+
+Compare the average accuracy to that to the KNN model you used in Unit 6.  
+
+```{r}
+
+```

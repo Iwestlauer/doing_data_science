@@ -1,0 +1,1263 @@
+NYT Classification Example part 2
+
+
+Hi. 
+Now, 
+let's look at a much bigger example where we're going to use the Naive Bayes classifier to classify articles from the New York Times, 
+based on this Central Park jogger theme as news or other. 
+We're going to take you from the beginning to the end. 
+We're going to involve a lot of the things we've learned up thus far in the course.
+
+So I'm really excited. 
+Really, 
+we're kind of putting a lot of things together. 
+But the central focus here, 
+or at least the newest part, 
+is looking at how to implement a Naive Bayes classifier, 
+in really kind of a text-rich environment, 
+such as what we're getting here from the New York Times API. 
+So let's go ahead and jump in.
+
+So we're going to need several libraries. 
+So you've got this code. 
+Follow along with me, 
+line by line. 
+Pause the video when you need to.
+
+And work out any issues. 
+If you have any questions as we go, 
+some of it, 
+again, 
+some of it is stuff that we've looked at before. 
+I might just say, 
+OK, 
+go ahead and check this out. 
+And if you've got any questions on it at all, 
+just record those and bring them into live session.
+
+Guaranteed, 
+others will have the same question. 
+So let's go for it. 
+So we're going to need a lot of libraries. 
+So one of them we're going to need, 
+this tm, 
+a text mining library.
+
+We'll see where that goes. 
+We're going to get stop words out of there. 
+We'll need the tidyr. 
+A lot of these, 
+you probably already have loaded.
+
+But it doesn't hurt to load them again. 
+Plyr, 
+dplyr, 
+and also, 
+it's better to add plyr first, 
+if you're going to have both. 
+Because they've got some aliasing of the functions. 
+Some of the functions are called the same thing.
+
+So I've got it loaded in here as plyr and dplyr. 
+We're going to need the jsonlite. 
+We're going to be pulling in this data from the NYT API, 
+from that package. 
+And we'll also need the tidyverse.
+
+And they'll come in through JSON format. 
+And then the tidyverse. 
+And of course, 
+in the tidyverse, 
+that's kind of redundant, 
+in tidyverse, 
+you get tidyr, 
+and you get dplyr. 
+You get ggplot too, 
+and you get a few other packages as well.
+
+But if you've got all these, 
+then you're ready to go. 
+So make sure also that you've got the NYT package loaded so that you can use the functions from that. 
+So I'm going to go ahead. 
+I've already got those loaded.
+
+So I'm going to go ahead and load these guys. 
+And of course, 
+at this point, 
+this is the same infrastructure to get data out of the New York Times website. 
+It's the same one as we used before in a previous unit. 
+So you're going to need your New York Times key.
+
+And we're going to use the same search function here. 
+We're going to do Central Park Jogger. 
+And we're going to look at the begin date here of 1989, 
+4/19. 
+And the end date here is a year later.
+
+Is that what I did? Two years later. 
+1991, 
+4/19 in 1991. 
+So now [INAUDIBLE]. 
+So this is the kind of rvest API call that we're going to use to get the data to communicate with the NYT servers.
+
+And then just think how rich this is. 
+They're going to give us all of the articles that were written in those two years that have to do with Central Park Jogger, 
+with those three search terms together. 
+So great. 
+So that's going to build our base URL.
+
+And then we're going to get max pages. 
+So I'm going to just look at how many pages of data it's going to give us there. 
+And I'll go ahead and run that. 
+And it looks like 43.
+
+And that takes a little bit of time. 
+So I'm going to skip ahead a little bit. 
+But I've already downloaded this. 
+But you'll need to.
+
+So I'm going to start the downloading package here. 
+But I'm not going to assign it to NYT search. 
+Because I've already done this, 
+just to save us some time. 
+So I'm going to show you kind of what it looks like to start.
+
+And remind you of some good practices, 
+and some things to expect. 
+But so after I do that, 
+notice it's going to say, 
+OK, 
+there's 43 pages. 
+It's going to start retrieving these. 
+And notice here that it's saying retrieving page 0, 
+retrieving page 1.
+
+Notice that I've put sys.sleep(7) in here. 
+You really only need sys.sleep(6). 
+If you go search on the internet, 
+it gives you some advice, 
+that you can actually hit the NYT server too fast, 
+and it's going to send you a 429er that says, 
+you're trying to get too much data too fast.
+
+So kind of the way to do that is to not get it as fast, 
+to slow it down. 
+And the general guidance is to make this sys.sleep(6), 
+to between pages take it just 6 at a time. 
+So I've already loaded all 43 pages of this.
+
+So I'm going to go ahead and stop it. 
+You'll need to keep this going all the way to page 43. 
+So I'll go ahead and stop that. 
+But and I'm going to skip this line of code, 
+or else I would overwrite my data.
+
+But I've got--
+
+I'll just put dim(allNYTsearch) on here. 
+And there's 437 lines of data in here, 
+in 33 columns. 
+So let's talk a little bit about those columns. 
+Some of the ones we're going to be using here--
+
+so NYT--
+
+allNYTSearch. 
+So if you put a dollar sign on there, 
+and you type in headline, 
+you won't go too far until you'll have this one. 
+So we've got response doc headline main. 
+Same one we've used before.
+
+That's really going to be the one that we're going to look at here. 
+So in a previous unit, 
+or the previous segment in this unit, 
+we talked about the snippet. 
+You could use this snippet as well. 
+In this particular example, 
+we're going to look at the headline.
+
+And we're going to parse that headline down to each word. 
+And just like we did before, 
+in each word, 
+we're going to use this idea of a Naive Bayes classifier to get a score for the probability, 
+or at least a score of it being in a news article, 
+or it being an other article. 
+Exactly like we did before in the smaller example. 
+Except now, 
+we're going to do this for many articles.
+
+And we're going to do it for a training set and a test set, 
+and see, 
+and evaluate, 
+how well this Naive Bayes classifier is working. 
+So for now, 
+all we need to know is, 
+hey, 
+I'm going to look at that. 
+And if I look at these guys, 
+then I can see there's 437 articles. 
+And these are all the articles.
+
+You'll see a lot of them are news summary. 
+But all the articles that are related to the Central Park Jogger that came from The New York Times website. 
+OK. 
+So let that all sink in there for a second.
+
+And maybe play around with that, 
+with all these headlines. 
+And now what we're going to do--
+
+again, 
+kind of just play around as it goes, 
+and you can always pause the video. 
+But what we're going to do now is to reclassify these. 
+Because another article--
+
+actually, 
+another piece of this, 
+or another attribute of these is the type. 
+So if I put in type of material--
+
+so you remember, 
+in type of material, 
+a lot of it is news. 
+But some of it is summary. 
+Some of it is letter, 
+review, 
+editorial. 
+There's Op-Ed.
+
+I'm going to classify these as other, 
+just like we did before. 
+But first, 
+actually, 
+I'm going to plot it. 
+So this is very much like we did before. 
+Again, 
+review this code.
+
+This is some ggplot code. 
+If you got any questions at all, 
+bring it up in live session. 
+We've seen a lot of this before. 
+So but it'll be great practice to go through and make sure you know what each piece of it does.
+
+But after that, 
+I look at it and I say, 
+oh, 
+OK. 
+I can expand this a little bit. 
+Large majority here is the news articles. 
+But there's a whole bunch of little non-news articles that we're going stack all these together and call them other, 
+just like we did before.
+
+So, 
+great. 
+So I'm going to do this. 
+And again, 
+just like we did before. 
+This is our if else statement.
+
+So if else, 
+if docs type equals news, 
+then call it news. 
+And if it doesn't, 
+then call it other. 
+So again, 
+very straightforward there. 
+Follow right along.
+
+And then we'll look at the--
+
+again, 
+what we're looking at here are the priors, 
+is kind of a visualization of what the prior distributions are. 
+So here, 
+what I'm going to do is say, 
+I'm going to pass it off to group by. 
+And we're going to group by news or other. 
+So we'll have those groups.
+
+I'm going to summarize to get a count of how many others and how many new. 
+And then I'm going to make that a percent. 
+And then I'm going to send it off to ggplot and make a bar plot. 
+So after that, 
+it'll be pretty straightforward.
+
+Here it is. 
+So this is the percent. 
+It looks like it's about a little over 70% news articles. 
+And the rest of it, 
+20-something percent others.
+
+And so that's what we're going to focus on here, 
+is classifying an article as news or other. 
+So great. 
+So the next thing we're going to do that we've done in a previous unit, 
+when we looked at a different classifier, 
+is break it into a training and test set. 
+And we're going to do that the exact same way as we've done before.
+
+Notice here that I'm going to set seed to two. 
+So that way, 
+if you followed along exactly what we've done here, 
+we should get the exact same results. 
+So that's another way to kind of check ourselves. 
+If you don't put set seed equals 2, 
+then you're going to get a different training test set than I get, 
+because they're randomly selected from that 420-something articles that we have already.
+
+So again, 
+bring up any questions you have on this in live session. 
+It will be a great discussion. 
+And I guarantee you, 
+for sure, 
+somebody else will have that question. 
+We might just discuss it anyway.
+
+But this is just breaking it up into training and test set at random. 
+So using that sample function there. 
+So I'm going to go ahead and do that. 
+And so all of a sudden, 
+let's just kind of check that.
+
+If I do dim all NYT search test, 
+notice that's got 131. 
+And if I put in here, 
+train, 
+notice that's got the other 306. 
+So I'm looking at that first number there. 
+It's how many rows are in there.
+
+So, 
+awesome. 
+So now we've got the train. 
+And we've got the test. 
+So what is going to happen next?
+
+So again, 
+just kind of let that sink in. 
+What's going to happen next is, 
+I want to use--
+
+just like we did in the small example and in the segment before that, 
+is find out the probability of a word being a news article, 
+given that word, 
+or an other article, 
+given that word. 
+And then we're going to do that for each word in the headline. 
+Add them up, 
+or in this case, 
+we're going to multiply them. 
+And whichever one has the biggest value is going--
+
+we're going to classify it that way. 
+So, 
+what I'm going to need there is a function. 
+And this function here, 
+I'm going to call Pnews_word. 
+So what this is, 
+p, 
+for probability.
+
+And the probability that that word is a news article. 
+So the probability of news, 
+given word. 
+And so there it is. 
+Function--
+
+all I'm going to do is give it a keyword. 
+I'm going to give it the training set. 
+And then I'm going to give it this thing called alphaLeplace 0.1, 
+betaLeplace 0.2.
+
+In the book, 
+please read. 
+And you can find internet resources as well. 
+Please read about the Leplace smoother. 
+So just to kind of give a little foreshadowing to it, 
+and we'll talk much more about this in live session--
+
+this is, 
+if you recall from the small example, 
+we had zero probabilities. 
+And if you have a zero probability and you're multiplying it, 
+that's going to make the whole thing zero. 
+So it would be a shame to let one word dictate the whole score. 
+So you'll have--
+
+if I have a zero, 
+a lot of times what I'll do is, 
+I'll add a little bit just automatically to that number. 
+And end up not having a zero. 
+So all this is going to do--
+
+alpha, 
+in short, 
+adds 0.1 to the numerator and beta adds 0.2 to the denominator. 
+Those are the defaults.
+
+You can set them to be whatever you want. 
+In fact, 
+I'm going to set these defaults to be 1 each. 
+So if I set those defaults to be 1 each, 
+it's just always going to add 1 to the numerator. 
+And always going to add 1 to the denominator.
+
+Again, 
+we'll talk more about that. 
+And if you didn't want to use a Leplace smoother, 
+you could make that zero. 
+So great. 
+So what is that going to do?
+
+Well, 
+let's kind of dive in here, 
+into one--
+
+we're going to say, 
+here's the training sets. 
+We're going to take training set responses. 
+And we're going to look at the headline. 
+So we passed in the training set.
+
+And then we're going to unlist them. 
+And we're going to do string replace all. 
+And we're going to--
+
+so, 
+again, 
+just kind of stepping through this. 
+You might have to watch this a couple of times, 
+because it's pretty deep what we're doing here. 
+Very simple idea, 
+but a lot of places to it. 
+So I'm going to look at the headline of the training set.
+
+And I'm going to say, 
+let's replace everything that is--
+
+recall this one. 
+Everything that's not--
+
+notice that caret--
+
+everything that's not an alphanumeric number. 
+And replace it with a null. 
+So it's just going to say, 
+hey, 
+take that asterisk and make it a null. 
+Take that apostrophe and make it a null.
+
+So that's what this line does, 
+is it says, 
+hey, 
+take everything in the headline that's not alphanumeric and take it out. 
+OK. 
+And then I'm going to unlist that. 
+And I'm going to put that into something called training set response headline.
+
+So I'm just replacing the headline with just words. 
+Not any special characters. 
+Here, 
+I'm going to print the keyword. 
+I'm going to go ahead and take that out.
+
+That's a good thing to leave in there, 
+when you're trying to kind of debug it. 
+So every time it calls this function, 
+it would pass the keyword. 
+But then what's going to happen is, 
+I'm going to say newsgroup. 
+So right now, 
+I've just got all of the training set, 
+all of the headlines in the training set have no special characters.
+
+Then I'm going to divide it up and say, 
+hey, 
+give me all the news ones. 
+So in the training set, 
+give me everything that's news. 
+And in the other group, 
+give me everything that's other. 
+And what I didn't show in there was, 
+when we--
+
+what we've done, 
+actually, 
+we've done this before in the past, 
+is we made a column called news or other. 
+And that's when we did this if else statement up here. 
+This if else statement, 
+notice, 
+created a column called news or other. 
+And awesome.
+
+So keep rolling. 
+We're going to have--
+
+so this is going to take all the news groups. 
+And this is going to take all the other groups. 
+So and it will just divide them straight as they are. 
+So they'll have news group.
+
+Those will have other group. 
+Now here we go. 
+So now p news--
+
+p news. 
+That's the probability of a news article. 
+That's estimated. 
+I have my training set.
+
+And the training set's where I'm getting all of these. 
+You can think of the training set as that table that had all the volleyball, 
+that had the sunny, 
+and the wind, 
+and the volleyball. 
+Those 10 observations. 
+That's the training set.
+
+Then I have another observation that I use the data from that to make a classification of. 
+That's what we're building here. 
+We're giving this thing the training set, 
+and saying, 
+hey, 
+what's the probability of news? And the probability of news is just saying, 
+hey, 
+how many news articles were there, 
+divided by how many articles are in the training group?
+
+Notice, 
+that's news plus other. 
+So probability of news, 
+dim, 
+this guy right here, 
+just says, 
+hey, 
+give me how many rows are in the news group, 
+divided by how many rows are in all the training group. 
+And probability of other, 
+it's either news or other. 
+It's just 1 minus the probability of news.
+
+So here is the--
+
+what I want to do right here is show, 
+this is what we're doing, 
+is we're trying to find the probability of news, 
+given a keyword. 
+Probability of news, 
+given a keyword. 
+And then this will be--
+
+it's the probability of a keyword given news. 
+We know that from Bayes' theorem. 
+Probability of keyword given news times the probability of news divided by the probability of a keyword. 
+We've already found the probability of the news.
+
+So now we're going to find the probability of a keyword given news. 
+So given that it's a news, 
+what's the probability that we see this keyword? Remember that we're passing the keyword in here. 
+Every time we call this function, 
+it's going to send back that probability of seeing that keyword given that it's news.
+
+Awesome. 
+So. 
+OK. 
+So probability of keyword, 
+given news. 
+So what we're going to do--
+
+and again, 
+one thing I might recommend is to try to really dissect this on your own. 
+And then maybe pause the video, 
+or maybe try to dissect this on your own first. 
+And then come and watch this video. 
+You might have to watch it a couple of times, 
+because there's a lot going on.
+
+But the probability of keyword given news--
+
+and we'll talk about it in live session as well, 
+if you like. 
+So as the length, 
+we're going to use this function called string which. 
+This is actually from string r. 
+And string which acts a lot like grep.
+
+And what that'll do is, 
+it says, 
+give me the news--
+
+see, 
+these are the headlines. 
+These are the headlines that have already been cleaned up. 
+No special characters. 
+There's our regex statement.
+
+So this is awesome. 
+I know this a longer segment, 
+but just, 
+there's so much going on in here. 
+It'll really kind of all start to come together. 
+Here's our regex.
+
+We're going to paste together--
+
+let me kind of extend this so we can see it. 
+We're going to paste using string c. 
+We're going to paste that word border, 
+keyword, 
+word border. 
+So I'm just looking for that keyword.
+
+I'm separating it. 
+Let me get that over here--
+
+using nothing, 
+using these words. 
+So at the end of the day here, 
+this length, 
+string which, 
+that's going to take each word. 
+And it's going to say--
+
+actually, 
+I'm sorry. 
+It's going to say, 
+in the news articles, 
+how many times did you see this keyword. 
+And it's actually--
+
+the string which is going to return the place that it saw it. 
+So if it saw it in article 10, 
+it would return a 10. 
+If it saw it in article 10 and 9 and 12, 
+it would return 10, 
+9, 
+and 12. 
+Really, 
+9, 
+10, 
+and 12.
+
+So that's what it's going to do there. 
+I want to ignore case. 
+I don't care if the keyword came up as jogger, 
+or capital J, 
+or lower j. 
+Or unfortunately, 
+this was an assault.
+
+So somebody went into a coma. 
+So if it was a capital C, 
+or lowercase c, 
+I don't care. 
+So I'm going to ignore case. 
+And then here's where I'm adding that little piece.
+
+So I'm going to add a 0.1 or a 1, 
+in case that comes back zero, 
+right, 
+to give me a zero probability, 
+I'm going to add a little bit to it. 
+And that'll allow it not to just zero everything else. 
+And same thing down here.
+
+I definitely don't want a zero down here. 
+So I'm going to add a little bit to that beta, 
+because if I divided by zero, 
+I'd just get an error and the whole thing would kick out. 
+So really make sure that makes sense. 
+I'm going to do the same thing here for other.
+
+So I'm going to count how many times did that keyword come up in other. 
+And notice the length is saying, 
+hey, 
+how many of those indexes did I have? So that'll be how many articles did that come up in, 
+divided by the total. 
+And again, 
+with the Leplace smoothing, 
+unless you made it zero.
+
+So then the only thing left--
+
+that's the probability of the keyword given news, 
+and the keyword given other. 
+The only thing left is the probability of the keyword. 
+And all you have to do there is say, 
+how many times did that keyword come up in the training set that I passed it? So again, 
+I'm going to say the length of the which--
+
+which indexes did the training set have--
+
+this is the training set. 
+Notice, 
+this was news. 
+This was other. 
+This is the whole training set.
+
+And it's the same exact strategy as up here. 
+So here is the regex. 
+I'm saying, 
+hey, 
+look for keyword. 
+Not a word that contains the keyword, 
+but we're putting the word borders on it.
+
+Ignore case. 
+I don't care if it's capital or lowercase. 
+And divide by the total size. 
+And that will give me the probability, 
+the proportion, 
+of articles, 
+of headlines, 
+in the whole training set that had that keyword.
+
+And so that'll give me the probability of the keyword. 
+So then at the end of the day, 
+I just say, 
+the probability of news given keyword, 
+as we know from Bayes' theorem, 
+is the probability of keyword given news times the probability of probability of news, 
+divided by the probability of keyword. 
+That's what it's been the whole time. 
+And those are just the probabilities that came out of there.
+
+And that's what I'm going to return. 
+I'm going to return the probability of news given keyword. 
+Awesome. 
+So that's what that function will do.
+
+And that's what it'll return the probability of news given keyword. 
+I'm going to run some of these. 
+So I'm going to go back here and run and pick up where I kind of left off. 
+I think, 
+yeah, 
+I'd already run the search test.
+
+So I'm just going to kind of catch up here. 
+So I'm just going to run this function, 
+so that R has this function in it. 
+So we're just going to demonstrate a little bit about what this function can do by actually running it. 
+And again, 
+it might take a little while to kind of dissect it and figure it out.
+
+Go back and watch that video to make sure you know what each line does. 
+But at the end of the day, 
+we have this function called Pnews_word. 
+That's the probability of news, 
+given a word. 
+And I'm going to give it a word.
+
+I'm going to give it jogger and I'm going to give it the training set, 
+which is all NYC train. 
+So it's going to go through all the trainings. 
+It's going to go through this function, 
+find the probability of keyword given news, 
+times the probability of news, 
+divided by the probability of keyword. 
+That's what all of this thing's figured out.
+
+And at the end of the day, 
+it says, 
+hey, 
+if you see jogger in it, 
+this thing is saying, 
+given the training set, 
+that that's a 95% chance, 
+it's estimating, 
+that this article that had jogger in it was a news article. 
+And notice, 
+that most articles, 
+or most words in the article, 
+are capitalized. 
+So if I actually went back here and looked at j, 
+lowercase j, 
+that would come back with an infinite number. 
+And that's interesting.
+
+Just because it came up with a zero in there. 
+So let's keep going. 
+So what is on here--
+
+so you could just kind of play around with that. 
+You can put in words that aren't--
+
+we're going to end up taking out these words. 
+But you can put in words like the, 
+and say, 
+oh, 
+that's interesting. 
+There's a 76% chance it's a news article if the word the is in it. 
+But the is kind of in both.
+
+So we're going to take those words out. 
+We're going to call those stop words. 
+That's what that library tm is for. 
+So let's go ahead and get with it.
+
+So what I'm going to do here is create some holders. 
+So there's the score. 
+I'm going to call these scores. 
+So I'm going to have an overall score.
+
+That's the score holder for news. 
+And there will be a score holder for other. 
+And then there's an article score, 
+just for that article. 
+So I do that.
+
+Good. 
+So I do that. 
+And so those are just holders. 
+So now what I'm going to do is this.
+
+For one in--
+
+notice this is NYTSearchTest. 
+So for one in the number of test articles, 
+I'm going to look at each headline. 
+For each of the test articles. 
+I'm evaluating how well this Naive Bayes classifier is at specifically classifying between news and other for this specific population of Central Park headlines in this time range.
+
+So I'm going to say, 
+hey, 
+for each article, 
+I want you to zero this guy out. 
+And I'm making this a 1, 
+because I ended up multiplying them. 
+I ended up--
+
+so, 
+if I have a--
+
+at the very beginning, 
+1 times anything is itself. 
+So what you'll see here is it's important that we make this a 1, 
+since at the end, 
+I'm going to multiply all these scores together. 
+And I want to use the one before it. 
+So the first one has to be a 1, 
+so that when I multiply, 
+I get the same thing back.
+
+If it was a zero, 
+I'd multiply by zero. 
+And then it would just zero out the whole thing. 
+So what's up? I'm going to take that headline.
+
+I'm going to take that headline right here, 
+because I'm going to go through. 
+And it's going to say, 
+allNYTSearch i. 
+And when it just starts, 
+i is 1. 
+I'm going to take the first headline.
+
+And I'm going to replace every non-numeric--
+
+notice, 
+that's a not. 
+Every non-numeric element of that. 
+That's what this line will do. 
+This is a set of the alphanumeric words.
+
+So it's saying, 
+if it's not alphanumeric, 
+replace it with a null sign. 
+So that will take out the apostrophes, 
+the punctuation, 
+it will take out all that. 
+Just give me the words. 
+And then split it based on the word boundary.
+
+We said we'd see that again. 
+Split it. 
+And I just want the words. 
+So now that's going to give me in the text.
+
+That's going to say, 
+in fact, 
+if I wanted to, 
+I could just take this guy, 
+just like that. 
+And I'll kind of show you what it does. 
+I'll just put in here a 1. 
+Like that.
+
+That'll look at the first article. 
+That's going to split it up. 
+I think everything should be fine there. 
+And then I'll look at the text.
+
+And there it is. 
+So that's article one. 
+Judge rejects defense claim in Central Park jogger case. 
+So what I'm going to do is, 
+look at judge.
+
+I'm going to look at the probability of news, 
+probability of other. 
+Rejects. 
+Probability of news, 
+probability of the other. 
+Defense.
+
+Probability of news, 
+probability of other. 
+And I'm going to do that for all of these words, 
+except I'm going to take out the stop words first. 
+So I probably won't have in, 
+or any other word that's kind of maybe not very useful. 
+So that's what that piece does.
+
+And then I'm going to do this for each headline now. 
+Remember, 
+there's a loop in there. 
+And then I'm going to say, 
+OK, 
+words to take out. 
+So I'm going to take out the stop words.
+
+I probably could have taken that outside the loop. 
+But I'm going to do it each time. 
+It's going to make it run a little slower. 
+But we can always improve and make things more efficient.
+
+But now I'm going to do words to take out. 
+I'm going to--
+
+notice this is important. 
+I'm going to collapse them on our word boundary. 
+So that's going to say, 
+hey, 
+in fact, 
+let's do that. 
+So here's the words to take out.
+
+Just like that. 
+Words to take out. 
+So words to take out. 
+There is all the words.
+
+That comes in the tm package. 
+And then I'm going to border those so that, 
+and remember why I'm doing that. 
+So this is going to look sloppy. 
+But you know what it means.
+
+It's got the word. 
+And then it's bounded by slash slash b, 
+slash slash b. 
+So that's saying, 
+hey, 
+when I look for these words later, 
+I want to look for those words. 
+I want to look for, 
+like, 
+one of these stop words is, 
+let's just [INAUDIBLE]
+
+is, 
+trying to make [INAUDIBLE]
+
+at. 
+One of them is at. 
+But if I saw the word bat, 
+I wouldn't want to take that word out. 
+I want to just take out the word at.
+
+So that's why I have to put those delineations around them. 
+And then I'm going to say, 
+hey, 
+I need the important words. 
+So notice, 
+important words is the text. 
+So this is the important words of the headline that we have.
+
+So this will be the headline, 
+minus the stop words. 
+So this is the text, 
+and then not detect. 
+So what I want to do is I want to detect if the words to take out are in there, 
+ignoring the case. 
+So where are the words to take out, 
+opposite those.
+
+So it's going to return a lot of trues and falses, 
+switch those around, 
+and just return the words that are not the stop words. 
+And so that'll give me the important words. 
+Again, 
+play around with that function. 
+And then I'm going to go into inside of that.
+
+So this is for each article. 
+This is great use for R, 
+great use for programming, 
+great practice for programming, 
+and great practice for Naive Bayes. 
+Inside of that, 
+inside of each headline, 
+I want to do this for each word. 
+So this is j into length of important words.
+
+So for each word, 
+what am I going to do? I'm going to take--
+
+I'm going to build a score for each one. 
+I'm going to build a cumulative score. 
+So I'm going to go through the first word. 
+Well, 
+that's 1.
+
+Article score news, 
+right. 
+That's 1. 
+For the first word, 
+that's a one. 
+Then I'm going to say, 
+hey, 
+what's the probability it's a news article?
+
+That's our function. 
+And we send it back. 
+We say, 
+oh, 
+OK. 
+That'll be 1 times 0.97.
+
+Or 1 times 0.45. 
+And then it'll do that for the other article as well, 
+which is just 1 minus the p news. 
+And then it'll go for the second word. 
+Well now, 
+article score news is, 
+let's say that this was 0.97.
+
+So it's 0.97 times 1. 
+So when it comes around for j equals 2, 
+this will be 0.97. 
+So it will say 0.97
+
+times whatever the probability of news for the second word is. 
+And do the same thing for the other. 
+And probability of third word, 
+and fourth word, 
+and fifth word. 
+However long the headline goes.
+
+It builds up that score, 
+and then at the end of the day, 
+we'll have built that up. 
+And sorry, 
+and after each one, 
+I'm sorry--
+
+after each, 
+after I hit the end of the headline, 
+it's going to, 
+for that article, 
+record that score. 
+And I'm going to do that. 
+Remember, 
+this is i. 
+So I'm going to do that.
+
+i goes from 1 to how many ever test headline articles there are. 
+So after I've multiplied it up, 
+gotten the product, 
+I'm going to record that for each headline. 
+Then I'm going to start it over. 
+Let's go to the second headline.
+
+Let's break into a bunch of words. 
+Let's come here and look at the probability of news and multiply the probability of each word of being news, 
+probability of each word being other. 
+Let's take that final score and record it as the score for the second article. 
+Third article, 
+fourth article, 
+all the way until you're finished.
+
+And then at the end of the day, 
+we're going to say, 
+OK. 
+I have a lot of classifications. 
+So notice this one here is if else. 
+If the score holder news is greater than score holder other, 
+classify it as news.
+
+If not, 
+classify it as others. 
+Again, 
+we've seen something very similar to that. 
+We just did one article last time, 
+instead of, 
+in a previous unit, 
+instead of a lot of articles. 
+So now I've got this full data set here, 
+that's got predicted news and other, 
+and actual news or other.
+
+So I can make a confusion matrix. 
+This all NYT search class test classified--
+
+let's do this. 
+So if I do head all NYT--
+
+because I've run this earlier. 
+All NYT. 
+Maybe I haven't read it. 
+Let's just go ahead and run it.
+
+Because what's going to happen in the end, 
+it's going to say, 
+hey, 
+let's do a confusion matrix on how well it classified news as news, 
+news as other, 
+others as news, 
+and others as other. 
+And so we'll do that. 
+So without further ado, 
+after all of that, 
+let's run this guy. 
+I'll just start here, 
+even though it'll be a little redundant.
+
+So it's running through. 
+So I took out that thing that's printing all the words. 
+But it should be going through right now, 
+making all those. 
+And here's our confusion matrix.
+
+So it's saying, 
+hey, 
+you know what? It classified 53--
+
+there were, 
+looks like here, 
+this should be, 
+actually--
+
+classified in article. 
+So I believe--
+
+I've forgotten. 
+We'll have to check this. 
+But it's one or the other. 
+Well, 
+let's say this.
+
+So if these--
+
+I'm trying to figure out--
+
+I'm trying to remember if these are the actual ones, 
+or if the rows are actual, 
+or if the columns are actual. 
+And it matters whether or not my classified is first. 
+And whatever is first--
+
+oh, 
+here I go. 
+Actual in columns. 
+Thank you, 
+comments. 
+That's why you do those. 
+So actual here is in the columns.
+
+So it looks like of all of the articles here, 
+I had 80--
+
+92--
+
+so yeah, 
+I had 92 news articles. 
+And of those 92 news articles, 
+I classified 53 as news. 
+Not good. 
+But hopefully we're doing better than 50%.
+
+And hopefully, 
+if we classified everything as news, 
+we'd do about 70%. 
+But then we would be mis-classifying all the others. 
+And that's an important point. 
+So a really terrible model would be to classify everything as news.
+
+It would have good accuracy, 
+but it would have terrible accuracy for classifying others. 
+So this one's doing a little bit better in that sense, 
+looking at sensitivity and specificity. 
+So I'll let you--
+
+well, 
+you can check this one out. 
+Now that we have a confusion matrix, 
+I'm going to do head of this guy. 
+And so--
+
+all NYT search test classified. 
+[INAUDIBLE]
+
+Oh. 
+That's just the head of it. 
+I was like, 
+why are there not that many of them there. 
+See, 
+I just put the head.
+
+But that's just saying, 
+hey, 
+there's others. 
+The first one was other. 
+The second was classified as news. 
+The third was classified as other.
+
+[INAUDIBLE]
+
+news, 
+news, 
+news, 
+news. 
+So I had a bunch of ones that were classified as news. 
+But so, 
+that's all that's contained in there, 
+are the classified ones. 
+And then of course, 
+the actual ones are right here.
+
+All right. 
+Those are the actual ones that we made earlier, 
+that we got from the actual data set. 
+So you can see all those. 
+I'll just take this out of here.
+
+So those are the actuals. 
+And these are the others. 
+These are the actuals. 
+These are the classifieds.
+
+And if they matched up perfectly, 
+we'd have perfect classification. 
+But that's what this confusion matrix is telling us, 
+is how well the accuracy is on--
+
+and you can figure out the accuracy from this guy. 
+And that's something we'll do in live session, 
+or that you'll end up bringing to live session, 
+is finding the sensitivity, 
+specificity, 
+and accuracy from this confusion matrix, 
+to determine just how well this Naive Bayes classifier is working. 
+That was a lot. 
+But it had a whole bunch of what we've been doing all the way up through all the units until this point, 
+putting it all together to build a Naive Bayes classifier.
+
+So, 
+great job. 
+I'll see you next time.
+

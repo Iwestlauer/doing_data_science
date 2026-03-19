@@ -1,0 +1,232 @@
+---
+title: "Unit 7 NYT Problem"
+author: "Isabella Westlauer"
+date: "2026-02-11"
+output: html_document
+---
+#NYT Example
+```{r NYT}
+######################
+
+# Loading the Data from the NYT API
+
+# We will load from "Data+Science" and "Trump" searches.
+
+# Data+Science Search
+# term <- "Data+Science" # Need to use + to string together separate words
+# begin_date <- "20180901"
+# end_date <- "20190502"
+
+# Trump Search
+# term <- "Trump" # Need to use + to string together separate words
+# begin_date <- "20190415"
+# end_date <- "20190502"
+
+######################
+
+#NYT Example
+
+library(tm) #text mining library provides the stopwords() function
+library(tidyr)
+library(plyr)
+library(jsonlite)
+library(dplyr)
+library(tidyverse)
+library(caret)
+library(patchwork)
+```
+```{r}
+
+NYTIMES_KEY = "DYY6iHutIPXhgaCBy6Dj8NE6n9PSphPQi6loyuYWL3z6mbLG" #Your Key Here … get from NTY API website
+
+# Let's set some parameters
+term <- "Trump"
+# During the month of January 2026
+begin_date <- "20260101"
+end_date <- "20260131"
+
+#example call
+# https://api.nytimes.com/svc/search/v2/articlesearch.json?q=election&api-key=yourkey
+
+
+baseurl <- paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json?q=",term,
+                  "&begin_date=",begin_date,"&end_date=",end_date,
+                  "&api-key=",NYTIMES_KEY, sep="")
+#facet filter is deprecated
+baseurl
+
+initialQuery <- jsonlite::fromJSON(baseurl)
+maxPages <- round((initialQuery$response$meta$hits[1] / 10)-1)
+maxPages #198
+
+pages <- list() #initialize a list to hold the pages
+```
+
+This is what didn't work (copied from the example):
+
+```{r}
+# for(i in 0:maxPages){
+#   nytSearch <- jsonlite::fromJSON(paste0(baseurl, "&page=", i), flatten = TRUE) %>% data.frame() 
+#   message("Retrieving page ", i)
+#   pages[[i+1]] <- nytSearch 
+#   Sys.sleep(12) 
+# }
+# 
+
+
+# Error in (function (..., row.names = NULL, check.rows = FALSE, check.names = TRUE,  : 
+#   arguments imply differing number of rows: 0, 1
+# You're trying to turn the whole nested list into a data frame — which fails because:
+# status is length 1
+# copyright is length 1
+# response$docs is length 10 (usually)
+# response$meta is length 1
+```
+
+
+```{r}
+for(i in 0:maxPages){
+  raw <- jsonlite::fromJSON(paste0(baseurl, "&page=", i), flatten = TRUE)
+  nytSearch <- raw$response$docs   # <-- THIS is the data frame
+  message("Retrieving page ", i)
+  pages[[i+1]] <- nytSearch 
+  Sys.sleep(12)
+}
+
+allNYTSearch <- rbind_pages(pages)
+# str(allNYTSearch)
+
+```
+```{r}
+#Segmentation
+
+# Visualize coverage by section
+
+allNYTSearch %>% 
+  group_by(type_of_material) %>%
+  dplyr::summarize(count=n()) %>%
+  mutate(percent = (count / sum(count))*100) %>%
+  ggplot() +
+  geom_bar(aes(y=percent, x=type_of_material, fill=type_of_material), stat = "identity") + coord_flip()
+```
+```{r}
+#Make another column of News versus Other ... The labels
+
+allNYTSearch$NewsOrOther = ifelse(allNYTSearch$type_of_material == "News","News","Other")
+#There is an NA in NewsOrOther
+
+# Visualize coverage of News or Other about 65% news, 35% other
+
+allNYTSearch[!is.na(allNYTSearch$NewsOrOther),] %>% 
+  group_by(NewsOrOther) %>%
+  dplyr::summarize(count=n()) %>%
+  mutate(percent = (count / sum(count))*100) %>%
+  ggplot() +
+  geom_bar(aes(y=percent, x=NewsOrOther, fill=NewsOrOther), stat = "identity") + 
+  coord_flip() +
+  ggtitle("News or Other Classification of Trump Articles in NYT - January 2026")
+
+```
+```{r}
+
+#Train and Test Split 70%/30%
+
+set.seed(2)
+trainInd = sample(seq(1,dim(allNYTSearch)[1],1),round(.7*dim(allNYTSearch)[1]))
+allNYTSearchTrain = allNYTSearch[trainInd,]
+allNYTSearchTest = allNYTSearch[-trainInd,]
+```
+```{r}
+
+#This function returns P(News | Keyword) 
+#P(News|KW) = P(KW|News)* P(News) / P(KW)
+
+# this one is based on the headline
+# do another one with the snippet instead of headline
+# allNYTSearch$snippet
+Pnews_word = function(key_word, trainingSet, alphaLaplace = 1, betaLaplace = 1) # alpha and beta are for laplace smoothing
+{
+  # trainingSet$headline.main = unlist(str_replace_all(trainingSet$headline.main,"[^[:alnum:] ]", "")) 
+  trainingSet$snippet = unlist(str_replace_all(trainingSet$snippet,"[^[:alnum:] ]", "")) 
+  
+  #Take out all but alpha numeric characters from training headlines
+  
+  #print(key_word)
+  NewsGroup = trainingSet[trainingSet$NewsOrOther == "News",]
+  OtherGroup = trainingSet[trainingSet$NewsOrOther == "Other",]
+  
+  pNews = dim(NewsGroup)[1] / (dim(NewsGroup)[1] + dim(OtherGroup)[1])
+  pOther = 1 - pNews
+  
+  # pKWGivenNews = (length(str_which(NewsGroup$headline.main,regex(str_c("\\b",key_word,"\\b",sep=""),ignore_case = TRUE))))/(dim(NewsGroup)[1])
+  # pKWGivenOther = (length(str_which(OtherGroup$headline.main,regex(str_c("\\b",key_word,"\\b",sep=""),ignore_case = TRUE))))/(dim(OtherGroup)[1])
+  # 
+  # pKW = length(str_which(trainingSet$headline.main,regex(str_c("\\b",key_word,"\\b",sep=""),ignore_case = TRUE)))/dim(trainingSet)[1]
+  
+    pKWGivenNews = (length(str_which(NewsGroup$snippet,regex(str_c("\\b",key_word,"\\b",sep=""),ignore_case = TRUE))))/(dim(NewsGroup)[1])
+  pKWGivenOther = (length(str_which(OtherGroup$snippet,regex(str_c("\\b",key_word,"\\b",sep=""),ignore_case = TRUE))))/(dim(OtherGroup)[1])
+
+  pKW = length(str_which(trainingSet$snippet,regex(str_c("\\b",key_word,"\\b",sep=""),ignore_case = TRUE)))/dim(trainingSet)[1]
+  
+  pNewsGivenKW = ((pKWGivenNews*pNews)+alphaLaplace)/(pKW+betaLaplace)
+  pOtherGivenKW = ((pKWGivenOther*pOther)+alphaLaplace)/(pKW+betaLaplace)
+  
+  return(pNewsGivenKW)
+}
+
+theScoreHolderNews = c()
+theScoreHolderOther = c()
+articleScoreNews = 0;
+articleScoreOther = 0;
+
+
+for (i in 1 : dim(allNYTSearchTest)[1])  #This loop iterates over the articles in the Test Set
+{
+  
+  articleScoreNews = 1
+  articleScoreOther = 1
+
+#The [^[:alnum:] ] replaces all non alphanumeric characters with nulls.  
+# theText = unlist(str_split(str_replace_all(allNYTSearchTest[i,]$headline.main,"[^[:alnum:] ]", ""), stringr::boundary("word"))) 
+theText = unlist(str_split(str_replace_all(allNYTSearchTest[i,]$snippet,"[^[:alnum:] ]", ""), stringr::boundary("word"))) 
+#Take out all but alpha numeric characters from search string ... theText holds each word in the headline as its own word.  
+# stopwords() #from package tm
+wordsToTakeOut = stopwords()
+
+# put word boundaries stopwords so that we don't detect partial words later
+wordsToTakeOut = str_c(wordsToTakeOut,collapse = "\\b|\\b") 
+wordsToTakeOut = str_c("\\b",wordsToTakeOut,"\\b")
+#wordsToTakeOut
+
+importantWords = theText[!str_detect(theText,regex(wordsToTakeOut,ignore_case = TRUE))]
+
+#importantWords
+
+  for(j in 1 : length(importantWords))  #This loop iterates over the important words in the headline
+  {
+    articleScoreNews = articleScoreNews * Pnews_word(importantWords[j],allNYTSearchTrain)
+    articleScoreOther = articleScoreOther * (1 - Pnews_word(importantWords[j],allNYTSearchTrain))
+  }
+  theScoreHolderNews[i] = articleScoreNews
+  theScoreHolderOther[i] = articleScoreOther
+}
+
+# plot the scoreholdernews next to the scoreholderother
+p1 <- plot(theScoreHolderNews) 
+p2 <- plot(theScoreHolderOther)
+p1 + p2
+plot(theScoreHolderNews)
+```
+
+
+```{r}
+
+
+# Classify the aricle as News or Other based on a given piece of information from the article.
+allNYTSearchTest$Classified = ifelse(theScoreHolderNews > theScoreHolderOther,"News","Other")
+
+#Confusion Matrix
+table(allNYTSearchTest$Classified,allNYTSearchTest$NewsOrOther) #Actual in Columns
+confusionMatrix(factor(allNYTSearchTest$Classified),factor(allNYTSearchTest$NewsOrOther))
+
+```

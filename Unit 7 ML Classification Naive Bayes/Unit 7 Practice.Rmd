@@ -1,0 +1,183 @@
+---
+title: "Unit 7 Titanic Problem"
+author: "Isabella Westlauer"
+date: "2026-02-09"
+output: html_document
+---
+
+# Naive Bayes titanic
+
+Using all 891 observations, train a NB model with Age and Pclass as predictors and use this model to predict the survival of a 30 year old passenger in the 1, 2 and 3 classes.  Use the “type = raw” option to look at the predicted percentage of each outcome.
+
+```{r}
+library(tidyverse)
+library(class)
+library(caret)
+library(e1071) #naivebayes
+library(plotly)
+library(ggthemes)
+```
+ 
+```{r}
+
+url <- "https://raw.githubusercontent.com/BivinSadler/MSDS_6306_Doing-Data-Science/Master/Unit%206/titanic_train.csv"
+titanic <- read.csv(url)
+
+titanic$SurvivedLabel <- factor(titanic$Survived, labels = c("Died", "Survived"))
+str(titanic)
+
+model = naiveBayes(Survived~.,data = titanic)
+predict(model,titanic[,c("Pclass", "Age")])
+```
+
+Use the Naive Bayes (NB) model to predict the survival of a passenger age 30 in different classes.
+```{r}
+
+df = data.frame(Pclass = 1, Age = 30)
+predict(model,df) #just classifications
+predict(model,df, type = "raw") #gives probabilities 
+
+df = data.frame(Pclass = 2, Age = 30)
+predict(model,df) #just classifications
+predict(model,df, type = "raw") #gives probabilities 
+
+df = data.frame(Pclass = 3, Age = 30)
+predict(model,df) #just classifications
+predict(model,df, type = "raw") #gives probabilities 
+ 
+```
+Filter out the rows with a missing Age or Pclass and split the clean dataset into a training set and test set.
+
+```{r}
+titanicClean = titanic %>% filter(!is.na(Age) & !is.na(Pclass))
+set.seed(64)
+trainIndices = sample(seq(1:length(titanicClean$Age)),round(.7*length(titanicClean$Age)))
+trainTitanic = titanicClean[trainIndices,]
+testTitanic = titanicClean[-trainIndices,]
+```
+
+Train a NB model based on the training set using just the Age and Pclass variables. Use the model to predict the survival of those in the test set and use those results to evaluate the model based on accuracy, sensitivity and specificity. Finally, Compare the results to what you found with the KNN classifier. (At least one slide.)
+
+```{r}
+
+model = naiveBayes(trainTitanic[,c("Pclass", "Age")],trainTitanic$SurvivedLabel)
+table(predict(model,testTitanic[,c("Pclass", "Age")]),testTitanic$SurvivedLabel)%>%
+confusionMatrix()
+
+```
+Compare the NB model to KNN model based on the same seed.
+```{r}
+classifications = knn(trainTitanic[,c("Pclass","Age")],
+                      testTitanic[,c("Pclass","Age")],
+                      trainTitanic$SurvivedLabel, 
+                      prob = TRUE, k = 3)
+confusionMatrix(table(classifications,testTitanic$SurvivedLabel))
+```
+Loop nb and knn for 100 different seeds and compare the results.
+
+```{r}
+iterations = 100
+
+masterAcc_nb = matrix(nrow = iterations)
+masterAcc_knn = matrix(nrow = iterations)
+
+masterSensitivity_nb = matrix(nrow = iterations)
+masterSensitivity_knn = matrix(nrow = iterations)
+
+masterSpecificity_nb = matrix(nrow = iterations)
+masterSpecificity_knn = matrix(nrow = iterations)
+
+for(i in 1:iterations){
+  set.seed(i)
+  trainIndices = sample(seq(1:length(titanicClean$Age)),
+                        round(.7*length(titanicClean$Age)))
+  trainTitanic = titanicClean[trainIndices,]
+  testTitanic = titanicClean[-trainIndices,]
+  
+  nb_model = naiveBayes(trainTitanic[,c("Pclass", "Age")],
+                        trainTitanic$SurvivedLabel)
+  cm_nb <- confusionMatrix(table(predict(nb_model,
+                                         testTitanic[,c("Pclass", "Age")]),
+                                 testTitanic$SurvivedLabel))
+  masterAcc_nb[i] = cm_nb$overall[1]
+  masterSensitivity_nb[i] = cm_nb$byClass[1]
+  masterSpecificity_nb[i] = cm_nb$byClass[2]
+  
+  knn_model = knn(trainTitanic[,c("Pclass","Age")],
+                      testTitanic[,c("Pclass","Age")],
+                      trainTitanic$SurvivedLabel, 
+                      prob = TRUE, k = 3)
+  cm_knn <- confusionMatrix(table(knn_model,testTitanic$SurvivedLabel))
+  masterAcc_knn[i] = cm_knn$overall[1]
+  masterSensitivity_knn[i] = cm_knn$byClass[1]
+  masterSpecificity_knn[i] = cm_knn$byClass[2]
+  
+}
+MeanAcc_nb = colMeans(masterAcc_nb)
+MeanAcc_knn = colMeans(masterAcc_knn)
+
+MeanSensitivity_nb = colMeans(masterSensitivity_nb)
+MeanSensitivity_knn = colMeans(masterSensitivity_knn)
+
+MeanSpecificity_nb = colMeans(masterSpecificity_nb)
+MeanSpecificity_knn = colMeans(masterSpecificity_knn)
+
+```
+Now add Sex to the model so that it has Age, Pclass and Sex in the NB model.  Use the trainTitanic(set.seed(4)) dataframe to train the model and create a confusion matrix using the testTitanic dataframe.  In addition, find the Accuracy, Sensitivity and Specificity.
+
+```{r}
+set.seed(4)
+trainIndices = sample(seq(1:length(titanicClean$Age)),round(.7*length(titanicClean$Age)))
+trainTitanic = titanicClean[trainIndices,]
+testTitanic = titanicClean[-trainIndices,]
+model = naiveBayes(trainTitanic[,c("Sex", "Pclass", "Age")],trainTitanic$SurvivedLabel)
+cm <- model %>%
+  predict(testTitanic[,c("Sex", "Pclass", "Age")]) %>%
+  table(testTitanic$SurvivedLabel) %>%
+  confusionMatrix()
+
+```
+
+Loop for 100 seeds to get a stable estimate. 
+
+```{r}
+iterations = 100
+
+masterAcc_nb = matrix(nrow = iterations)
+masterAcc_knn = matrix(nrow = iterations)
+
+masterSensitivity_nb = matrix(nrow = iterations)
+masterSensitivity_knn = matrix(nrow = iterations)
+
+masterSpecificity_nb = matrix(nrow = iterations)
+masterSpecificity_knn = matrix(nrow = iterations)
+
+for (i in 1:iterations) {
+  set.seed(i)
+  trainIndices = sample(seq(1:length(titanicClean$Age)),round(.7*length(titanicClean$Age)))
+  trainTitanic = titanicClean[trainIndices,]
+  testTitanic = titanicClean[-trainIndices,]
+  model = naiveBayes(trainTitanic[,c("Sex", "Pclass", "Age")],trainTitanic$SurvivedLabel)
+  cm_nb <- model %>%
+    predict(testTitanic[,c("Sex", "Pclass", "Age")]) %>%
+    table(testTitanic$SurvivedLabel) %>%
+    confusionMatrix()
+  masterAcc_nb[i] = cm$overall[1]
+  masterSensitivity_nb[i] = cm_nb$byClass[1]
+  masterSpecificity_nb[i] = cm_nb$byClass[2]
+}
+
+MeanAcc_nb = colMeans(masterAcc_nb)
+
+MeanSensitivity_nb = colMeans(masterSensitivity_nb)
+
+MeanSpecificity_nb = colMeans(masterSpecificity_nb)
+
+```
+
+
+
+
+
+
+

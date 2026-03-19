@@ -1,0 +1,312 @@
+Naive Bayes the Basics Example
+
+Hi, 
+now let's look at an example using Bayes' theorem and also ask the additional question of why do we call it naive Bayes. 
+What's the naive part? So we're going to look at an example in the setting of volleyball and ask if a friend of mine, 
+Sammy, 
+will play volleyball today based on some of the conditions. 
+So what are we going to do?
+
+As usual, 
+we go out and collect some data. 
+And we want to see if the outlook and if the wind conditions can help us determine better than a 50/50 flip if Sammy is outside playing volleyball today. 
+So we've recorded the outlook. 
+And that's either sunny, 
+cloudy, 
+or rainy.
+
+We've recorded the wind conditions, 
+either high or low. 
+And we're recorded on those days whether or not Sammy played volleyball. 
+And from that we'll ask, 
+if it is sunny and windy today based on the past, 
+based on what we know about Sammy's past, 
+if it's sunny and windy, 
+is he outside playing volleyball. 
+Will he play volleyball?
+
+So that'll be the pretty simple but interesting question. 
+So let's go ahead and move to the naive Bayes part. 
+So naive Bayes, 
+what makes it naive is that we're assuming conditional independence. 
+And that's what we see here in our equation is saying conditional 
+on volleyball.
+
+So saying once we know whether or not he played volleyball or not, 
+are outlook and wind independent. 
+So let's say that, 
+yep, 
+let's look at all the days or let's just say that Sammy's playing 
+volleyball today, 
+is the probability of it being sunny independent of the probability 
+of it being high or low. 
+Or does it being sunny somehow give me some information about 
+whether or not it's windy or not. 
+Or if it's cloudy, 
+does that give me some information about it being windy or not?
+
+And if you're like, 
+you know what, 
+it does make sense that if it's cloudy, 
+maybe it is a higher probability of being windy. 
+So I'm not so sure I like this naive Bayes assumption of 
+conditional independence because being cloudy does maybe 
+increase the probability of wind. 
+If you believe that, 
+then this assumption is broken. 
+But that's an important thing to know about naive Bayes 
+is that that's a really strong assumption.
+
+Now naive Bayes can be robust to this assumption. 
+Researchers use naive Bayes anyhow because it's in some cases 
+almost for sure that this assumption will be broken. 
+But again, 
+all models are wrong and some are useful. 
+And this model can still be useful even if the naive assumption 
+is not met.
+
+But important to know that the naive assumption, 
+that's why they call it naive, 
+is that we're assuming that the explanatory variables are 
+independent, 
+conditional on the levels of the outcome. 
+In this case, 
+volleyball. 
+So here's where we left off. 
+And we still see our naive Bayes assumption of conditional independence.
+
+We're still asking if Sammy is going to play volleyball given that it's sunny and high wind. 
+So here is the mathematical equation. 
+If we're trying to apply Bayes' theorem to it, 
+we're going to ask, 
+hey, 
+we know that it's sunny and high wind, 
+what's the probability that Sammy's playing volleyball. 
+That's how we'd write that mathematically.
+
+Again, 
+what's the probability of volleyball given the fact that we know that it's sunny and high wind? I don't know that. 
+So what I'd like to do is use the information that I have here to estimate that. 
+And I can flip it around using Bayes' theorem.
+
+So that's the probability now of sunny and high wind given that we're playing volleyball, 
+times the probability of playing volleyball, 
+divided by the probability of it being sunny and high wind and general out there. 
+So maybe pause and really soak that in. 
+Look at the definition of Bayes' theorem, 
+make sure that all these variables match up, 
+and then we'll continue. 
+Reverse that first for a second, 
+notice that this piece is the same as this piece.
+
+We're going to use that naive Bayes assumption to break this up. 
+The probability of sunny and high wind given volleyball can be written as the probability of sunny given volleyball, 
+times the probability of high wind given volleyball, 
+because they're conditionally independent, 
+times the probability of volleyball. 
+Well, 
+the probability of volleyball here is just, 
+what's the probability that on any given day Sammy is out there playing volleyball. 
+That's the prior, 
+that's the prior probability.
+
+Given the past, 
+I think we're going to find that he's played volleyball about 
+60% of the time. 
+Out of these 10 days, 
+he is playing volleyball--
+
+those six yeses there. 
+So looking at that, 
+that's the numerator. 
+The denominator, 
+the probability of sunny and high wind, 
+can be written as you see it here in the denominator. 
+It's the probability of sunny given volleyball, 
+probability of high wind given volleyball, 
+times probability of volleyball, 
+again that's the naive Bayes assumption, 
+plus this piece here.
+
+So it looks rather not complicated, 
+but there's a lot of terms there. 
+But they're very easy to find each term given the table. 
+So here it is. 
+So what we're seeing here, 
+and I'll do a couple of these, 
+and you can verify the rest is what's the probability of sunny 
+given volleyball.
+
+So given volleyball over here, 
+I know there's a yes, 
+one, 
+two, 
+three yeses, 
+four five, 
+six yeses. 
+So given that he's playing volleyball, 
+I'm just looking at these six rows. 
+And in those six rows, 
+it was sunny one, 
+two, 
+right? Right here, 
+actually it was sunny on this day and sunny on that day.
+
+And so out of those six, 
+it was sunny on two of those six days. 
+So that's two out of six. 
+The probability that he's playing volleyball--
+
+I only saw him playing volleyball six times, 
+it was sunny on two of those days. 
+So the probability of sunny given volleyball is two out of six. 
+Let's do the same thing for high wind. 
+So looking over here, 
+there's again the same six days that he's playing volleyball.
+
+Let's see high wind. 
+So high wind, 
+so right here. 
+So this was the day that it was sunny, 
+it was not high wind. 
+This was sunny, 
+it was high wind.
+
+So there's a high wind. 
+This day, 
+no. 
+This day, 
+no. 
+This day, 
+yes. 
+So there's two high winds.
+
+And this day, 
+no. 
+So it's only to high winds out of those six days. 
+So again, 
+that's two out of six. 
+And then finally, 
+what's the probability of volleyball?
+
+We already said that there's 10 total days up here, 
+there's six out of 10. 
+So that's six out of 10 for each of those. 
+So I'll let you verify these here in the denominator, 
+but it's the same idea of given volleyball. 
+And down here note that for these, 
+those are four.
+
+Notice those are over four, 
+or these are over four. 
+That's because that's the probability of sunny given no volleyball. 
+So no volleyball, 
+there's only four days up here. 
+So I'll just verify that one here.
+
+So here's one two, 
+three, 
+four days of not playing volleyball. 
+One of those was sunny, 
+it's right here. 
+And so sunny and no volleyball, 
+so that's where that 1/4 came from. 
+So go ahead and verify all of those.
+
+And if you do, 
+we'll see that when you multiply that, 
+the probability of volleyball or the estimated probability of 
+Sammy volleyball given that it's sunny and windy outside is about 47%. 
+And if my threshold was 50%, 
+I'd classify Sammy not playing volleyball today. 
+So, 
+yeah, 
+let's see if Sammy wants to go see a movie or something because 
+I doubt he's out there playing volleyball. 
+So how can we do this in R?
+
+So what we're going to do is use a package called e1071, 
+a very numerical odd package name. 
+But we're going to install this package, 
+e1071. 
+And it's got a function in it called naive Bayes. 
+And I'm going to, 
+of course, 
+bring it into my session using library.
+
+And here is the syntax. 
+So the syntax is naive Bayes, 
+and you tell it the response, 
+tilde. 
+And then if you put a dot, 
+it means use everything else as explanatory variables. 
+I could have put in here outlook plus wind.
+
+But instead, 
+I just said, 
+hey, 
+I want I want outlook wind, 
+so I'll put a dot. 
+So whenever you see that dot, 
+it means all of it. 
+Like the wild card character, 
+but it's not a regular expression. 
+And then data says, 
+OK, 
+go to this data set called vball, 
+which I loaded in here.
+
+And you can do that. 
+So I've given you this data, 
+and really encourage you to do that, 
+just almost assuming that you're doing this is to grab the 
+data and load it to a data frame called vball. 
+And then it says, 
+OK, 
+well, 
+I know that there's columns called outlook, 
+wind, 
+and volleyball, 
+and vball, 
+and you're ready to go. 
+So here we'll have the data frame.
+
+I want to know specifically outlook equals sunny and wind equals high. 
+So that's the day I care about. 
+And once I've fit the model here and I come up with a df equals the data frame, 
+so now in this side of this data frame I have sunny and wind. 
+Then just put in predict model, 
+and pass it the outlook equals sunny and wind equals high, 
+which is what this data frame is.
+
+And it will give you the classifications. 
+And if not then, 
+if you want to put type equals raw, 
+then it will give you this. 
+So type equals raw, 
+it will say no is 52% and yes is 47%. 
+So that's that.
+
+So what would be our conclusion? Is the posterior, 
+this is known as posterior probability. 
+So we had the prior probability of playing volleyball was 60%. 
+But after we know about the outlook and wind, 
+we can say the posterior probability of him playing volleyball is 47%.
+
+So since the posterior probability associated with playing volleyball 
+on a sunny and highly windy day is 0.4706, 
+which is less than the posterior probability of not playing volleyball 
+in the same conditions, 
+for this reason we'll predict that Sammy is not playing volleyball 
+today. 
+We don't have a lot of confidence in this because it's so close. 
+If it was like 90/10, 
+I'd have a lot more confidence.
+
+But if I had to make a decision, 
+I would probably choose that he is not playing volleyball today. 
+And that's how we can do it with R and naive Bayes using R and doing 
+it by hand. 
+Great job on this one. 
+I'll see you next time.
+

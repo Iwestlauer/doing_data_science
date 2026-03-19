@@ -1,0 +1,311 @@
+NYT Article Classification 1
+Hi. 
+Now let's look at an example using a naive Bayes classifier. 
+And we're going to extend an example we looked at a few units ago with the NYT articles on the Central Park Jogger. 
+So if you recall, 
+we were looking at the Central Park Jogger, 
+it was back in 1989, 
+April of 1989 where we had a jogger--
+
+or actually, 
+there was somebody assaulting joggers in Central Park, 
+and it became a very--
+
+a very looked-at news event, 
+and there was lots of stuff written on it, 
+and we can actually go to The New York Times API and the R package built around it to get those articles. 
+And so what we'd like to do here now is use a naive Bayes classifier to try to classify these articles between news and other, 
+and that's what we have here. 
+We call this section a small example because I'm only going to look at five articles. 
+Later we'll look at many, 
+many, 
+many more articles. 
+So here we've got these five. 
+I've labeled them as news N or other O, 
+and I've got a snippet. 
+That's not even the headline, 
+it's just a snippet from there, 
+and that's one of the fields that comes back from that NYT article classification.
+
+So let's see how we might use that so we can evaluate this--
+
+so we can evaluate the naive Bayes classifier. 
+So, 
+here we have the--
+
+just a reminder of the formula, 
+I would like to know, 
+what is the probability that a particular snippet is a news article given W? Given the words? And you can think of that as a vector. 
+Given the words that are in the snippet.
+
+So once again, 
+that's what I want to know, 
+right? Is what is the probability of being a news article given the words that are in that snippet? So OK, 
+great. 
+So I don't know what that is, 
+but I can find out the other way around.
+
+So if I say, 
+well what's the probability of seeing the words given that it's a news article because I've collected some data up here? And then what's the--
+
+times the probability of a news article and the data that I've collected divided by the probability that that word occurs, 
+and again, 
+we'll do this for all the words in the snippet. 
+So I'm going to do The. 
+So let's just jump right into it--
+
+The is the first word in this snippet. 
+And in there we can see, 
+OK, 
+so we're going to look at this probability right here. 
+So given that it's a news article, 
+what's the probability that I saw The? So here's a news article, 
+there's a news article, 
+and there's a news article.
+
+And The is in that news article, 
+The is in that news article, 
+and The is in that news article--
+
+I'm saying article, 
+but I mean snippet, 
+but it's kind of the same thing. 
+So--
+
+because the snippet is just a piece of the article. 
+So again, 
+in 100% of the news articles, 
+I found the word The. 
+And so that's why that's a 1, 
+or a 3 divided by 3, 
+but I'll just write it as a 1. 
+Times the probability of a news article--
+
+there's five articles here--
+
+1, 
+2, 
+3 are news, 
+3 divided by 5 is 0.6 and the probability of the word The right now. 
+And The comes up--
+
+there's a The; there's nothing in this article, 
+but--
+
+or in this snippet. 
+The, 
+The, 
+and The. 
+So that came out in 4 out of 5, 
+so that's why this is a 0.8. 
+Let's do one more.
+
+So the next word is crime. 
+So we see crime--
+
+if I was, 
+again, 
+trying to find the Bayes--
+
+using Bayes there and trying to find the estimate--
+
+the probability of a news article given the words that are in this snippet. 
+So crime. 
+So I say, 
+OK, 
+so I've got the probability of crime given new--
+
+news. 
+So news is 1, 
+2, 
+and 3. 
+And I see crime in this one, 
+I see crime in that one, 
+and I don't see crime in that one. 
+So that was 2 out of 3.
+
+So 2 out of 3 is 0.66, 
+and that's been rounded, 
+of course, 
+but 0.66666. 
+This won't change, 
+right? The probability of a news article is constant across, 
+doesn't matter of the word.
+
+So that's just 0.6, 
+and you'll see that that's 0.6 all the way down. 
+And then divided by the probability of crime and the whole thing.
+
+So crime is--
+
+there's crime, 
+there's crime, 
+there's crime, 
+no crime, 
+no crime in those snippets. 
+So 3 out of 5 had crime, 
+3 out of 5, 
+again, 
+is 0.6. 
+So that's why this one's a 0.6. 
+So you'll see--
+
+go ahead and pause the video, 
+make sure that you can see where those are coming from, 
+and then notice that I've got a couple here for you to work on. 
+So you can work on those. 
+I'll give you another quick example here, 
+though, 
+while you're working on those or you could pause, 
+but here is the probability of other, 
+because I'm going to do what's the probability--
+
+given the same snippet, 
+what's the probability of it being a news article or another article given the same words? And so I'll say, 
+OK, 
+the probability of other is equal to--
+
+so this is the probability of the word given other times probability of other given probably the word. 
+So let's do it. 
+So it's pretty quick. 
+There's other and there's other.
+
+There's only two other articles. 
+And in here, 
+the probability of The--
+
+so The is not in the first other and The is in this one. 
+So that's 1 out of 2, 
+so that's 0.5, 
+and the probability of an other is 2--
+
+there's other, 
+other, 
+divided by 5. 
+So 2 divided by 5 is 0.4, 
+and you'll see that that 0.4 can just be filled in all the way down because the probability of other doesn't change.
+
+But the probability of crime given other will, 
+because that has a different frequency than The. 
+So actually, 
+this one doesn't, 
+but it could. 
+So this one here says, 
+OK, 
+in the two other articles, 
+given other, 
+this one is crime and that one does not have crime. 
+So again, 
+1 out of 2, 
+and 1 out of 2 is 0.5.
+
+And--
+
+oh, 
+I'm sorry. 
+And then the last part, 
+the probability, 
+notice these are the same as they were up here, 
+because the probability of the word--
+
+the probability of The in the whole data set's 0.8. 
+The probability of crime in the whole data set is 0.6, 
+so on and so forth. 
+So let's do this last one here just for completeness so you can see kind of what happens, 
+especially when you have such small data, 
+is the probability of was, 
+the probability of was given other--
+
+so here's other and here's other. 
+I don't see was in this snippet, 
+I don't see was in that snippet, 
+so that's 0. 
+And notice that I'm going to end up multiplying all these probabilities together in the end, 
+because it's the probability that I see The and crime and was and in and Central and Park. 
+And as soon as I get a 0 in there, 
+we end up--
+
+well, 
+the whole thing becomes 0. 
+If it was a huge probability and then all of a sudden I got a 0, 
+of course, 
+0 times anything is 0. 
+So we have things--
+
+we have ways that we'll discuss that will help us--
+
+that will help us mitigate this possibility of a zero factor and not just throwing away all those probabilities. 
+You could add them, 
+that'd be one way just to get a score, 
+but we'll kind of continue on that. 
+What I'd like to do now--
+
+again, 
+this is just a small example, 
+we'll get to those as we hit the bigger example. 
+So try to fill in those last four just to see if we have the idea. 
+So in this data set here, 
+try to fill in these last four. 
+And in 3, 
+2, 
+1, 
+I will show the answers or you can pause and take as long as you want, 
+but 3, 
+2, 
+1.
+
+So those are the ones for the news, 
+and these are the ones for the other. 
+And we'll just go through one of them, 
+but you can double-check them. 
+So Central. 
+Once again, 
+Central we have given that it's a news article, 
+what is the probability of seeing the word Central?
+
+So news, 
+news, 
+news, 
+Central is there in the first one, 
+Central is there and the second one, 
+Central is not in the third one. 
+So that's 2 out of 3, 
+that's where the 0.66 came from. 
+I think that by now we see that the probability of news is still 0.6,
+
+and the probability of Central--
+
+there's Central in this one--
+
+of the whole data set. 
+So there's Central, 
+no Central, 
+no Central, 
+and then there's Central right there, 
+so that's 3 out of 5, 
+which was 0.6, 
+that's where that came from. 
+So if you looked at that, 
+these would just multiply to be 0, 
+these would multiply to be something much larger than 0.
+
+So the simple idea here is is whichever--
+
+and again, 
+you could come up with a different statistic that would add those together, 
+and even if you did that, 
+you would see that the top one would be greater than the small--
+
+than the bottom one. 
+And since the probability of news here, 
+or at least the score of news is bigger than the score of that given those words for other, 
+I'm going to classify that as news, 
+simple as that. 
+So that is--
+
+that's going to be the big idea. 
+We want to start with a small example, 
+but then we'll apply this to a much bigger example in the next element. 
+So great job, 
+I'll see you next time.
+

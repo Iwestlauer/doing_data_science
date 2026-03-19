@@ -1,0 +1,179 @@
+Naive Bayes The Basics
+
+Hi. 
+Let's begin with an example. 
+Here is our example. 
+Let's say that we've got a friend named Bob.
+
+And he thinks he might have a rare disease. 
+So he goes out and takes a test for this disease. 
+And the test comes back positive. 
+So Bob's a little worried.
+
+So he decides to go research this test a little bit. 
+And so he goes out and researches the test. 
+Goes and gets the statistics on the test. 
+And he finds that for those who have the disease, 
+for those who actually have the disease, 
+90% test positive.
+
+So there's a 90% true positive rate there. 
+So then he finds out that for those who do not have the disease, 
+that 80% will test negative. 
+So those are some statistics on whether or not, 
+maybe they came from the FDA, 
+on how good the test performs. 
+No test is perfect.
+
+So these are the statistics for this particular test. 
+So let's go ahead and review Bayes' theorem. 
+Because Bayes' theorem might end up helping us solve this problem. 
+Because Bob's curious.
+
+He's thinking I've tested positive for the disease now. 
+So what is the probability that I actually have the disease? So we'll look here. 
+This is Bayes' theorem.
+
+So I have probability of A given B equals a probability of B given A. 
+Good old Reverend Bayes has provided this for us. 
+Times the probability of A divided by the probability of B. 
+That is Bayes' theorem.
+
+So what we're probably concerned about, 
+what Bob is probably concerned about, 
+is whether or not he has the disease given that he has tested positive for this test. 
+So remember that this vertical line here means given. 
+It's a conditional probability. 
+So what we're concerned with, 
+what we'd like to calculate is the probability of having the disease given that we've tested positive, 
+or given that Bob has tested positive.
+
+And that's what this is saying. 
+Now, 
+given that this has happened, 
+that we've tested positive, 
+what is the probability of having the disease? So if I write out the formula here, 
+we'll see that this is the probability of testing positive given the disease times the probability of having the disease divided by the probability of testing positive. 
+So let's go back to our test.
+
+And we'll begin to fill some of these in. 
+So for those who have the disease, 
+90% test positive. 
+So what this is saying that the probability of testing positive given that someone has the disease is equal to 90%. 
+And a lot of people get these two confounded, 
+thinking that I've tested positive for this test.
+
+So there's a 90% chance that I have the disease. 
+And that's not the case here at all, 
+as we'll find here shortly. 
+It's for those who have the disease, 
+90% of them will test positive. 
+So that means, 
+if we contrast this, 
+that the probability of testing negative if you have the disease is 10%.
+
+You've got to do one or the other. 
+You either test positive or you test negative. 
+So for those who do not have the disease, 
+80% will test negative. 
+So we'll write those statistics down.
+
+So for those who do not have the disease, 
+we've got 80% will test negative. 
+So negative given not disease is equal to 0.8, 
+meaning that the probability of positive given not disease actually equals 0.2. 
+So for people that do not have the disease, 
+20% will actually come back positive for the test.
+
+So great. 
+So I haven't provided you one piece of information here. 
+But let's go ahead, 
+I'll make the suspense build here a little bit. 
+Maybe you'll figure it out.
+
+Or maybe you've already figured it out. 
+So the probability of positive given disease is 0.9. 
+That's great. 
+And the probability of having the disease, 
+we don't have that on here.
+
+And that is fundamental to Bayes' theorem. 
+That's what's known as the prior. 
+So the prior is saying, 
+hey, 
+what do we know about this disease to begin with? Is it a really rare diseases?
+
+Is it a really frequent disease? Is it kind of an epidemic type disease? That's the piece that I haven't provided you over here. 
+So I'm going to go ahead and provide you and say it's a super rare 
+disease.
+
+So yes, 
+he's tested positive. 
+But it is a super rare disease. 
+So I'm going to say the probability of having the disease is equal to, 
+and I'll make that 0.001. 
+So 0.001,
+
+meaning that if we have 1,000 people, 
+that about one out of 1,000 will have this disease. 
+Maybe that's not super rare. 
+But we'll say that the probability of having the disease is 0.001. 
+So I'm going to fill that in here.
+
+So that's 0.001. 
+And then we'll divide by--
+
+and we've actually got the probability of positive. 
+This is what makes Naive Bayes the naive part, 
+is that if we have the naive Bayes part, 
+we can write this as the probability of a positive given D 
+times the probability of having the disease plus the probability 
+of positive given IND times the probability of IND. 
+So the probability of testing positive is this probability of 
+testing positive given you have the disease times the probability 
+of the disease occurring in the first place. 
+And the probability of testing positive not having the disease 
+and the probability of not having the disease in the first place.
+
+So let's go ahead and calculate these. 
+This is all about calculation. 
+So we've got 0.0009, 
+those two multiplied.
+
+And then we've got here, 
+let's start filling in the blanks, 
+so basically, 
+this is the same thing. 
+So 0.0009, 
+right? P positive D, 
+PD.
+
+P positive D by D. 
+That usually always turns out that way where you've got the 
+numerator repeated. 
+And then I'll add to it the probability of positive. 
+So this is a 0.2
+
+times the probability of not having the disease, 
+which is the last piece we'll put on here, 
+probability of no disease. 
+That's equal to 1 minus that, 
+0.999. 
+So this is 0.999. 
+So great.
+
+So let's see. 
+Bob is waiting. 
+We need to tell him what we think about the probability that he has the disease, 
+given that he's tested positive for this test. 
+If we do all this math right here, 
+we end up with 0.0045,
+
+so just under a half a percent chance that he has this disease. 
+So he's probably relieved. 
+But regardless, 
+the truth is is that given these statistics and the naive Bayes method, 
+we have that given that he has tested positive for the test, 
+the probability that he has the disease can be calculated to be 0.0045. 
+So nice job.
+
