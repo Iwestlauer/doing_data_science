@@ -1,0 +1,162 @@
+---
+title: "NASA_API"
+author: "Isabella Westlauer"
+date: "2026-01-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#NASA API Exploratory Data Analysis
+
+## Import libraries
+```{r}
+library(httr2)
+# r library for making http requests to an API
+library(tidyverse) 
+# tidyverse includes tibble, dplyr, ggplot2, tidyr, readr, stringr, etc.
+```
+
+## API GET Request from SBDB
+# Make an API GET request to NASA's Small-Body Database query API
+# We request three fields:
+#  - spkid: unique identifier for the object
+#  - rms: root-mean-square residual of the orbit fit
+#  - last_obs: date of the most recent observation
+
+```{r}
+# Make an API GET request to sbdb_query.api
+
+fields <- "rms,data_arc,spkid,last_obs,n_obs_used"
+limit <- 100 # limit the number of records returned
+
+resp <- request("https://ssd-api.jpl.nasa.gov/sbdb_query.api") |>
+  req_url_query(
+    fields = fields,
+    limit = limit) |>
+  # Prevent the request from stopping execution on HTTP errors
+  req_error(is_error = function(resp) FALSE) |>
+  req_perform()
+# Check HTTP status code:
+# 200 indicates a successful request
+resp$status_code
+```
+# Tidy the data
+```{r}
+# Parse the JSON response into an R list
+data <- resp_body_json(resp)
+# Inspect the field names returned by the API
+str(data$fields, max.level = 2)
+
+# The API returns the data as a list of rows (one list per object).
+# do.call(rbind, ...) binds all rows together into a single matrix-like object.
+# This is necessary to convert the nested JSON structure into rectangular data.
+df <- as_tibble(
+  do.call(rbind, data$data),
+  .name_repair = "minimal"
+)
+
+# Assign column names using the metadata returned by the API
+colnames(df) <- data$fields
+
+# Some columns are stored as lists due to missing values in the API response.
+# unlist() flattens each column into a standard atomic vector,
+# which is required before converting data types.
+df <- df |>
+  mutate(
+    spkid = unlist(spkid),
+    rms = unlist(rms),
+    last_obs = unlist(last_obs),
+    data_arc = unlist(data_arc),
+    n_obs_used = unlist(n_obs_used)
+  )
+
+# Preview a few values of last_obs to inspect formatting
+# unique(df$last_obs)[1:10]
+# unique(df$n_obs_used)[1:10]
+unique(df$data_arc)[1:10]
+```
+
+## More data tidying
+```{r}
+# Convert columns to appropriate data types:
+#  - spkid remains character
+#  - rms is numeric
+#  - n_obs_used is numeric
+#  - data_arc is numeric
+#  - last_obs is converted to Date
+# Missing Data: 
+# Empty strings in last_obs are replaced with NA before conversion
+# compare to an ifna() in Excel
+df <- df |>
+  mutate(
+    spkid = as.character(spkid),
+    rms = as.numeric(rms),
+    n_obs_used = as.numeric(n_obs_used),
+    data_arc = as.numeric(data_arc),
+    last_obs = na_if(last_obs, ""),
+    last_obs = as.Date(last_obs, format = "%Y-%m-%d")
+  )
+
+# Inspect the cleaned data
+head(df)
+
+# Export the cleaned data to a CSV file
+# write.csv(df, file = "output.csv", row.names = FALSE)
+```
+
+## Plot RMS
+The RMS of the orbit of a small body measures how well the computed orbit fits the observational data.
+Lower RMS values indicate a better orbit fit.
+```{r}
+ggplot(df, aes(x = rms)) +
+  geom_histogram(binwidth = 0.02, fill = "blue", color = "black") +
+  labs(title = "Distribution of Orbit RMS values of Small Bodies",
+       x = "RMS",
+       y = "Count") +
+  theme_minimal()
+```
+What are the outliers? Are there objects with a relatively low RMS because of when they were last observed, or how recently they were observed?
+
+
+##Plot last_obs vs count of objects
+```{r}
+
+plot(df$last_obs)
+rms_cutoff <- quantile(df$rms, 0.05, na.rm = TRUE)
+low_rms <- df %>%
+  filter(rms <= rms_cutoff)
+summary(low_rms$last_obs)
+```
+A couple of these objects were last observed in 2021, the majority have been observed between 2024-2026.
+
+# hist(low_rms$last_obs,
+#      main = "Last Observation Dates for Low-RMS Objects",
+#      xlab = "Last Observation Date")
+# "Error in hist.Date(low_rms$last_obs, main = "Last Observation Dates for Low-RMS Objects", : Must specify 'breaks' in hist(<Date>)"
+
+
+```{r}
+# The year of last_obs has to be numeric in order to draw the histogram.
+# years <- as.numeric(format(low_rms$last_obs, "%Y"))
+# 
+# hist(years,
+#      breaks = seq(min(years), max(years), by = 1),
+#      main = "Last Observation Year (Low RMS Objects)",
+#      xlab = "Year of Last Observation")
+```
+
+```{r}
+summary(df$last_obs)
+boxplot(df$last_obs, low_rms$last_obs,
+        names = c("All Objects", "Low RMS"),
+        main = "Last Observation Date Comparison")
+```
+##Compare the number of observations to the rms
+
+
+
+
+
